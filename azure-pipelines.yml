@@ -5,6 +5,7 @@
 
 trigger:
 - master
+pool: default
 
 steps:
 - task: NodeTool@0
