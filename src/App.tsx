@@ -1,20 +1,31 @@
 import React, { ReactElement, FC } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { Container } from '@material-ui/core';
+import Header from './components/header.component';
+import MenuBar from './components/menu-bar.component';
+import AzureDevopsProvider from './contexts/azure-devops.context';
+
+const theme = createMuiTheme({
+    palette: {
+        primary: {
+            main: '#0097a7',
+        },
+        secondary: {
+            main: '#00838f',
+        },
+    },
+});
 
 const App: FC<any> = (): ReactElement => {
     return (
-        <div className="App">
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-                    Edit <code>src/App.tsx</code> and save to reload.
-                </p>
-                <a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
-                    Learn React
-                </a>
-            </header>
-        </div>
+        <ThemeProvider theme={theme}>
+            <AzureDevopsProvider>
+                <MenuBar />
+                <Container maxWidth="lg">
+                    <Header />
+                </Container>
+            </AzureDevopsProvider>
+        </ThemeProvider>
     );
 };
 
