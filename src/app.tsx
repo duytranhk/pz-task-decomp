@@ -5,8 +5,6 @@ import MenuBar from './components/menu-bar.component';
 import AzureDevopsProvider from './contexts/azure-devops.context';
 import AppTheme from './components/app-theme.component';
 
-
-
 const App: FC<any> = (): ReactElement => {
     return (
         <AppTheme>

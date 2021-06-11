@@ -24,7 +24,6 @@ const MenuBar: FC<any> = (): ReactElement => {
     const onConfigClick = () => {
         setOpenConfigDialog(true);
     };
-
     const handleCloseConfigDialog = () => {
         setOpenConfigDialog(false);
     };

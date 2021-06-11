@@ -24,12 +24,12 @@ const theme = createMuiTheme({
                 borderRadius: 16,
             },
             elevation24: {
-                boxShadow: '0 3px 14px 0 rgb(213 227 239 / 60%)',
+                boxShadow: '0 3px 14px 0 rgba(213, 227, 239, 0.6)',
             },
         },
         MuiBackdrop: {
             root: {
-                backgroundColor: 'rgba(244, 247, 250, 0.3)',
+                backgroundColor: 'rgba(244, 247, 250, 0.5)',
             },
         },
     },
