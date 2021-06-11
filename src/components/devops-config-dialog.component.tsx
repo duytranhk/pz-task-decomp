@@ -8,6 +8,7 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
     const { config, setConfig } = useContext(AzureDevopsContext);
     const onSubmit: SubmitHandler<AzureDevopsConfig> = (data: AzureDevopsConfig) => {
         setConfig(data);
+        props.handleClose();
     };
     return (
         <Dialog open={props.open} onClose={props.handleClose}>
@@ -18,7 +19,7 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
                         name="endpoint"
                         control={control}
                         defaultValue={config?.endpoint || ''}
-                        render={({ field }) => <TextField label="Endpoint" margin="normal" type="text" {...field} fullWidth />}
+                        render={({ field }) => <TextField label="Endpoint" margin="normal" type="text" {...field} fullWidth/>}
                     />
                     <Controller
                         name="accessToken"
@@ -32,7 +33,7 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
                         Cancel
                     </Button>
                     <Button type="submit" variant="contained" color="primary" autoFocus>
-                        Set
+                        Save
                     </Button>
                 </DialogActions>
             </form>
