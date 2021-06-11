@@ -1,38 +1,22 @@
 import React, { ReactElement, FC } from 'react';
-import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { Container } from '@material-ui/core';
 import Header from './components/header.component';
 import MenuBar from './components/menu-bar.component';
 import AzureDevopsProvider from './contexts/azure-devops.context';
+import AppTheme from './components/app-theme.component';
 
-const theme = createMuiTheme({
-    palette: {
-        primary: {
-            main: '#0097a7',
-        },
-        secondary: {
-            main: '#00838f',
-        },
-    },
-    overrides: {
-        MuiPaper: {
-            rounded: {
-                borderRadius: 16
-            },
-        },
-    },
-});
+
 
 const App: FC<any> = (): ReactElement => {
     return (
-        <ThemeProvider theme={theme}>
+        <AppTheme>
             <AzureDevopsProvider>
                 <MenuBar />
                 <Container maxWidth="lg">
                     <Header />
                 </Container>
             </AzureDevopsProvider>
-        </ThemeProvider>
+        </AppTheme>
     );
 };
 

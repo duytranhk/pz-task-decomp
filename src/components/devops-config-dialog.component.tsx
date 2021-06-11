@@ -19,7 +19,7 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
                         name="endpoint"
                         control={control}
                         defaultValue={config?.endpoint || ''}
-                        render={({ field }) => <TextField label="Endpoint" margin="normal" type="text" {...field} fullWidth/>}
+                        render={({ field }) => <TextField label="Endpoint" margin="normal" type="text" {...field} fullWidth />}
                     />
                     <Controller
                         name="accessToken"
