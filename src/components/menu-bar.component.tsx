@@ -20,11 +20,11 @@ const MenuBar: FC<any> = (): ReactElement => {
     const classes = useStyles();
     const [openConfigDialog, setOpenConfigDialog] = React.useState(false);
     const onConfigClick = () => {
-        setOpenConfigDialog(state => true);
+        setOpenConfigDialog(true);
     };
 
     const handleCloseConfigDialog = () => {
-        setOpenConfigDialog(state => false);
+        setOpenConfigDialog(false);
     };
     return (
         <>
@@ -39,7 +39,7 @@ const MenuBar: FC<any> = (): ReactElement => {
                     </IconButton>
                 </Toolbar>
             </AppBar>
-            <DevopsConfigDialog open={openConfigDialog} handleClose={handleCloseConfigDialog} />
+            <DevopsConfigDialog open={openConfigDialog} handleClose={handleCloseConfigDialog}></DevopsConfigDialog>
         </>
     );
 };

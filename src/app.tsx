@@ -14,6 +14,13 @@ const theme = createMuiTheme({
             main: '#00838f',
         },
     },
+    overrides: {
+        MuiPaper: {
+            rounded: {
+                borderRadius: 16
+            },
+        },
+    },
 });
 
 const App: FC<any> = (): ReactElement => {
