@@ -1,0 +1,9 @@
+trigger:
+    branches:
+        include:
+            - refs/heads/master
+jobs:
+    - job: Build App
+      steps:
+          - checkout: self
+          
