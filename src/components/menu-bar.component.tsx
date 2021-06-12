@@ -42,7 +42,7 @@ const MenuBar: FC<any> = (): ReactElement => {
                     </IconButton>
                 </Toolbar>
             </AppBar>
-            <DevopsConfigDialog open={openConfigDialog} handleClose={handleCloseConfigDialog}></DevopsConfigDialog>
+            {openConfigDialog && <DevopsConfigDialog open={openConfigDialog} handleClose={handleCloseConfigDialog}></DevopsConfigDialog>}
         </>
     );
 };

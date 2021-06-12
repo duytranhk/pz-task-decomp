@@ -12,7 +12,7 @@ export default class ApiService {
     }
 
     public static callApi<T, P>(method: Method, endpoint: string, data?: T): Promise<P> {
-        const config = UtilService.getStorageItem<AzureDevopsConfig>('@app:azure-config');
+        const config = UtilService.getStorageObjectItem<AzureDevopsConfig>('@app:azure-config');
         if (!config?.endpoint || !config?.accessToken) {
             return new Promise((_, reject) => reject('Missing configuration'));
         }
