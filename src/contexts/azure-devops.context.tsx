@@ -34,6 +34,8 @@ const AzureDevopsProvider: FC<any> = (props): ReactElement => {
                 setProjects(res.value);
             });
             setHasConfigured(!!config?.selectedProjectId);
+        } else {
+            setHasConfigured(false);
         }
     }, [config]);
 
