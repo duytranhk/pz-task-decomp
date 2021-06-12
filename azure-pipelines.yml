@@ -8,13 +8,13 @@ stages:
   - job: Build
     pool:
       vmImage: 'ubuntu-18.04'
-
     steps:
     - task: NodeTool@0
       inputs:
         versionSpec: '10.x'
       displayName: 'Install Node.js'
     - task: YarnInstaller@3
+      displayName: 'Install Yarn'
       inputs:
         versionSpec: '1.x'
     - task: Yarn@2
@@ -27,14 +27,12 @@ stages:
       inputs:
         ProjectDirectory: '$(System.DefaultWorkingDirectory)'
         Arguments: 'build-prod'
-
     - task: CopyFiles@2
       displayName: 'Copy Files'
       inputs:
         SourceFolder: '$(System.DefaultWorkingDirectory)/build'
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
         CleanTargetFolder: true
-
     - task: PublishBuildArtifacts@1      
       inputs:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
@@ -44,7 +42,7 @@ stages:
   jobs:
   - deployment: Deploy
     pool:
-      vmImage: 'ubuntu-18.04'
+      vmImage: 'vs2017-win2016'
     variables:
       storageaccountname: staticwebsitedemostorage
     environment: 'Deploy Application'
@@ -54,8 +52,8 @@ stages:
           steps:
           - download: current
             artifact: app
-            
           - task: AzureFileCopy@3
+            displayName: Deploy to Blob Storage
             inputs:
               sourcePath: $(Pipeline.Workspace)/build
               azureSubscription: 'Azure Resource Management (PZ)'
