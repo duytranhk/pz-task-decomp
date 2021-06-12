@@ -7,6 +7,7 @@ import { AzureDevopsContext } from '../contexts/azure-devops.context';
 import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.client';
 import { DevopsIteration } from '../services/shared/azure-devops/azure-devops.models';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+import _ from 'lodash';
 const useStyles = makeStyles({
     root: {
         flexGrow: 1,
@@ -28,7 +29,8 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
     useEffect(() => {
         if (config?.selectedProjectId && selectedIterationId) {
             AzureDevopsClient.getIterationWorkItems(config.selectedProjectId!, config.selectedTeamId!, selectedIterationId).then((res) => {
-                console.log(res);
+                const pbi = _.filter(res.workItemRelations, (w) => !w.rel && !w.source);
+                console.log(pbi);
             });
         }
     }, [config, selectedIterationId]);
@@ -45,7 +47,7 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
                     getOptionLabel={(option) => option.name}
                     style={{ width: 300 }}
                     onChange={(event, value) => handleChangeSelectedIterationId(value!)}
-                    renderInput={(params) => <TextField {...params} label="Combo box" variant="outlined" />}
+                    renderInput={(params) => <TextField {...params} label="Select Iteration" />}
                 />
             </Grid>
         </Grid>

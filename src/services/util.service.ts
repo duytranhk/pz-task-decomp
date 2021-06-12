@@ -13,4 +13,13 @@ export default class UtilService {
     public static saveStorageItem(key: string, object: any) {
         localStorage.setItem(key, JSON.stringify(object));
     }
+
+    public static toQueryString(object: { [key: string]: any }): string {
+        var str = [];
+        for (var p in object)
+            if (object.hasOwnProperty(p)) {
+                str.push(encodeURIComponent(p) + '=' + encodeURIComponent(object[p]));
+            }
+        return str.join('&');
+    }
 }

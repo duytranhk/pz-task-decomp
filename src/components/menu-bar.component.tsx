@@ -19,14 +19,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 const MenuBar: FC<any> = (): ReactElement => {
     const classes = useStyles();
-    const { hasConfigured } = useContext(AzureDevopsContext);
-    const [openConfigDialog, setOpenConfigDialog] = React.useState(false);
-    const onConfigClick = () => {
-        setOpenConfigDialog(true);
-    };
-    const handleCloseConfigDialog = () => {
-        setOpenConfigDialog(false);
-    };
+    const { hasConfigured, setShowConfig } = useContext(AzureDevopsContext);
     return (
         <>
             <AppBar position="static">
@@ -35,14 +28,13 @@ const MenuBar: FC<any> = (): ReactElement => {
                     <Typography variant="h6" className={classes.title}>
                         Quick Decomp
                     </Typography>
-                    <IconButton aria-label="config" color="inherit" onClick={onConfigClick}>
+                    <IconButton aria-label="config" color="inherit" onClick={() => setShowConfig(true)}>
                         <Badge color="error" variant={hasConfigured ? undefined : 'dot'}>
                             <BuildIcon />
                         </Badge>
                     </IconButton>
                 </Toolbar>
             </AppBar>
-            {openConfigDialog && <DevopsConfigDialog open={openConfigDialog} handleClose={handleCloseConfigDialog}></DevopsConfigDialog>}
         </>
     );
 };

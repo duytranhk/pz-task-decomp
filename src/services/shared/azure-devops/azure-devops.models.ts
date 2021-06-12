@@ -12,10 +12,8 @@ export interface DevopsIteration {
 }
 
 export interface DevopsTaskBoardWorkItem {
-    column: string;
-    columnId: string;
-    state: string;
-    workItemId: string;
+    url: string;
+    workItemRelations: DevopsWorkItemLink[];
 }
 
 export interface DevopsTeams {
@@ -24,4 +22,15 @@ export interface DevopsTeams {
     url: string;
     description: string;
     identityUrl: string;
+}
+
+export interface DevopsWorkItemLink {
+    rel?: string;
+    source?: DevopsWorkItemReference[];
+    target?: DevopsWorkItemReference[];
+}
+
+export interface DevopsWorkItemReference {
+    id: number;
+    url: string;
 }

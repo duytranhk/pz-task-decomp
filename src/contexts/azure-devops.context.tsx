@@ -15,20 +15,21 @@ export interface AzureDevopsConfig {
 export interface AzureDevopsConfigState {
     config?: AzureDevopsConfig;
     hasConfigured?: boolean;
+    showConfig: boolean;
     setConfig: (config?: AzureDevopsConfig) => void;
     setHasConfigured: (value: boolean) => void;
+    setShowConfig: (value: boolean) => void;
 }
 
 const AzureDevopsProvider: FC<any> = (props): ReactElement => {
     const [config, setConfig] = useState<AzureDevopsConfig>();
     const [hasConfigured, setHasConfigured] = useState(false);
+    const [showConfig, setShowConfig] = useState(false);
     useEffect(() => {
         const savedConfig = UtilService.getStorageObjectItem<AzureDevopsConfig>('@app:azure-config');
         setConfig(savedConfig!);
-        const getProject = AzureDevopsClient.getProjects();
-        const getTeams = AzureDevopsClient.getTeams();
-        Promise.all([getProject, getTeams])
-            .then((_) => setHasConfigured(!!savedConfig?.selectedProjectId))
+        AzureDevopsClient.getProjects()
+            .then((_) => setHasConfigured(!!savedConfig?.selectedProjectId && !!savedConfig?.selectedTeamId))
             .catch((_) => setHasConfigured(false));
     }, []);
 
@@ -37,8 +38,10 @@ const AzureDevopsProvider: FC<any> = (props): ReactElement => {
             value={{
                 config,
                 hasConfigured,
+                showConfig,
                 setConfig: (config) => setConfig(config),
                 setHasConfigured: (value) => setHasConfigured(value),
+                setShowConfig: (value) => setShowConfig(value),
             }}
         >
             {props.children}

@@ -1,5 +1,5 @@
 import React, { ReactElement, FC } from 'react';
-import { Typography } from '@material-ui/core';
+import { Link, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useContext } from 'react';
 import { AzureDevopsContext } from '../contexts/azure-devops.context';
@@ -32,7 +32,11 @@ const useStyles = makeStyles({
 });
 const HomePage: FC<any> = (): ReactElement => {
     const classes = useStyles();
-    const { hasConfigured } = useContext(AzureDevopsContext);
+    const { hasConfigured, setShowConfig } = useContext(AzureDevopsContext);
+    const handleSettingClick = (event: React.SyntheticEvent) => {
+        event.preventDefault();
+        setShowConfig(true);
+    };
     return (
         <div className={classes.root}>
             {hasConfigured ? (
@@ -52,7 +56,10 @@ const HomePage: FC<any> = (): ReactElement => {
                         Ops!
                     </Typography>
                     <Typography className={classes.caption} variant="body1" gutterBottom>
-                        Looks like you haven't configured Azure Devops setting.
+                        Looks like you haven't configured &nbsp;
+                        <Link href="#" onClick={handleSettingClick}>
+                            Azure Devops setting.
+                        </Link>
                     </Typography>
                 </div>
             )}
