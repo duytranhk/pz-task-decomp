@@ -55,7 +55,7 @@ stages:
           - task: AzureFileCopy@3
             displayName: Deploy to Blob Storage
             inputs:
-              sourcePath: $(Pipeline.Workspace)/build
+              sourcePath: $(Pipeline.Workspace)
               azureSubscription: 'Azure Resource Management (PZ)'
               destination: azureBlob
               storage: $(storageAccount)
