@@ -1,18 +1,63 @@
-# Node.js with React
-# Build a Node.js project that uses React.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
-
 trigger:
 - master
+stages:
+- stage: build
+  jobs:
+  - job: build
+    pool:
+      vmImage: 'vs2017-win2016'
 
-steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '10.x'
-  displayName: 'Install Node.js'
+    steps:
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '10.x'
+      displayName: 'Install Node.js'
 
-- script: |
-    npm install
-    npm run build
-  displayName: 'Build Application'
+    - task: Npm@1
+      displayName: 'Install Dependencies'
+      inputs:
+        workingDir: '$(System.DefaultWorkingDirectory)'
+        command: install
+
+    - task: Npm@1
+      displayName: 'Build App'
+      inputs:
+        workingDir: $(System.DefaultWorkingDirectory)'
+        command: custom
+        customCommand: run build-prod
+        
+
+    - task: CopyFiles@2
+      displayName: 'Copy Files'
+      inputs:
+        SourceFolder: '$(System.DefaultWorkingDirectory)\build'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)'
+        CleanTargetFolder: true
+
+    - task: PublishBuildArtifacts@1      
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'app'
+
+- stage: deploy
+  jobs:
+  - deployment: deploy
+    pool:
+      vmImage: 'vs2017-win2016'
+    variables:
+      storageaccountname: staticwebsitedemostorage
+    environment: 'Deploy Application'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: app
+            
+          - task: AzureFileCopy@3
+            inputs:
+              sourcePath: $(Pipeline.Workspace)/build
+              azureSubscription: 'Azure Service Connection'
+              destination: azureBlob
+              storage: $(storageAccount)
+              containerName: "$web"
