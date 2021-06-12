@@ -9,6 +9,7 @@ export interface AzureDevopsConfig {
     endpoint?: string;
     accessToken?: string;
     selectedProjectId?: string;
+    selectedTeamId?: string;
 }
 
 export interface AzureDevopsConfigState {
@@ -24,13 +25,11 @@ const AzureDevopsProvider: FC<any> = (props): ReactElement => {
     useEffect(() => {
         const savedConfig = UtilService.getStorageObjectItem<AzureDevopsConfig>('@app:azure-config');
         setConfig(savedConfig!);
-        AzureDevopsClient.getProjects()
-            .then((res) => {
-                setHasConfigured(!!savedConfig?.selectedProjectId);
-            })
-            .catch((_) => {
-                setHasConfigured(false);
-            });
+        const getProject = AzureDevopsClient.getProjects();
+        const getTeams = AzureDevopsClient.getTeams();
+        Promise.all([getProject, getTeams])
+            .then((_) => setHasConfigured(!!savedConfig?.selectedProjectId))
+            .catch((_) => setHasConfigured(false));
     }, []);
 
     return (
