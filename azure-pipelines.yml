@@ -14,20 +14,19 @@ stages:
       inputs:
         versionSpec: '10.x'
       displayName: 'Install Node.js'
-
-    - task: Npm@1
+    - task: YarnInstaller@3
+      inputs:
+        versionSpec: '1.x'
+    - task: Yarn@2
       displayName: 'Install Dependencies'
       inputs:
-        workingDir: '$(System.DefaultWorkingDirectory)'
-        command: install
-
-    - task: Npm@1
+        ProjectDirectory: '$(System.DefaultWorkingDirectory)'
+        Arguments: 'install --frozen-lockfile'
+    - task: Yarn@2
       displayName: 'Build App'
       inputs:
-        workingDir: $(System.DefaultWorkingDirectory)'
-        command: custom
-        customCommand: run build-prod
-        
+        ProjectDirectory: '$(System.DefaultWorkingDirectory)'
+        Arguments: 'build-prod'
 
     - task: CopyFiles@2
       displayName: 'Copy Files'
