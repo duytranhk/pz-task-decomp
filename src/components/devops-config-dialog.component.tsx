@@ -1,17 +1,31 @@
 import React, { FC, ReactElement, useContext } from 'react';
-import { DialogContent, DialogActions, Button, DialogTitle, Dialog, TextField, Link } from '@material-ui/core';
+import {
+    DialogContent,
+    DialogActions,
+    Button,
+    DialogTitle,
+    Dialog,
+    TextField,
+    Link,
+    Select,
+    MenuItem,
+    InputLabel,
+    FormControl,
+} from '@material-ui/core';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { AzureDevopsConfig, AzureDevopsContext } from '../contexts/azure-devops.context';
 
 const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement => {
     const { control, handleSubmit } = useForm<AzureDevopsConfig>();
-    const { config, setConfig } = useContext(AzureDevopsContext);
+    const { config, projects, setConfig } = useContext(AzureDevopsContext);
     const onSubmit: SubmitHandler<AzureDevopsConfig> = async (data: AzureDevopsConfig) => {
         setConfig(data);
-        props.handleClose();
+        if (data.selectedProjectId) {
+            props.handleClose();
+        }
     };
     return (
-        <Dialog open={props.open} onClose={props.handleClose}>
+        <Dialog open={props.open} onClose={props.handleClose} fullWidth maxWidth="xs">
             <form onSubmit={handleSubmit(onSubmit)}>
                 <DialogTitle>Azure Devops Configuration</DialogTitle>
                 <DialogContent>
@@ -52,13 +66,32 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
                             />
                         )}
                     />
+                    {projects?.length && (
+                        <Controller
+                            name="selectedProjectId"
+                            control={control}
+                            defaultValue={config?.selectedProjectId || ''}
+                            render={({ field }) => (
+                                <FormControl fullWidth margin="normal">
+                                    <InputLabel id="select-project">Select Project</InputLabel>
+                                    <Select {...field} labelId="select-project">
+                                        {projects.map((p) => (
+                                            <MenuItem key={p.id} value={p.id}>
+                                                {p.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                </FormControl>
+                            )}
+                        />
+                    )}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={props.handleClose} color="default">
                         Cancel
                     </Button>
                     <Button type="submit" variant="contained" color="primary" autoFocus>
-                        Save
+                        {projects?.length ? 'Save' : 'Verify'}
                     </Button>
                 </DialogActions>
             </form>

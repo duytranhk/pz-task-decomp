@@ -1,25 +1,27 @@
 import React, { FC, ReactElement } from 'react';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import AzureDevopsService from '../services/azure-devops.service';
+import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.client';
+import { DevopsProject } from '../services/shared/azure-devops/azure-devops.models';
 import UtilService from '../services/util.service';
 export const AzureDevopsContext = React.createContext<AzureDevopsConfigState>({} as any);
 
 export interface AzureDevopsConfig {
     endpoint?: string;
     accessToken?: string;
+    selectedProjectId?: string;
 }
 
 export interface AzureDevopsConfigState {
     config?: AzureDevopsConfig;
     hasConfigured?: boolean;
-    projects?: any;
+    projects?: DevopsProject[];
     setConfig: (config?: AzureDevopsConfig) => void;
 }
 
 const AzureDevopsProvider: FC<any> = (props): ReactElement => {
-    const [config, setConfig] = useState<AzureDevopsConfig>({});
-    const [projects, setProjects] = useState([]);
+    const [config, setConfig] = useState<AzureDevopsConfig>();
+    const [projects, setProjects] = useState<DevopsProject[]>();
     const [hasConfigured, setHasConfigured] = useState(false);
     useEffect(() => {
         setConfig(UtilService.getStorageItem<AzureDevopsConfig>('@app:azure-config'));
@@ -27,13 +29,11 @@ const AzureDevopsProvider: FC<any> = (props): ReactElement => {
 
     useEffect(() => {
         UtilService.saveStorageItem('@app:azure-config', config);
-        const hasConfigured = !!config?.endpoint && !!config?.accessToken;
-        setHasConfigured(hasConfigured);
-        if (hasConfigured) {
-            AzureDevopsService.init(config);
-            AzureDevopsService.getProjects().then((data) => {
-                setProjects(data.value);
+        if (config?.endpoint && config?.accessToken) {
+            AzureDevopsClient.getProjects().then((res) => {
+                setProjects(res.value);
             });
+            setHasConfigured(!!config?.selectedProjectId);
         }
     }, [config]);
 
