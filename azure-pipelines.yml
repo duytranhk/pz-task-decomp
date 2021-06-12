@@ -1,11 +1,13 @@
 trigger:
-- master
+  branches:
+    include:
+      - master
 stages:
-- stage: build
+- stage: Build
   jobs:
-  - job: build
+  - job: Build
     pool:
-      vmImage: 'vs2017-win2016'
+      vmImage: 'ubuntu-18.04'
 
     steps:
     - task: NodeTool@0
@@ -39,11 +41,11 @@ stages:
         PathtoPublish: '$(Build.ArtifactStagingDirectory)'
         ArtifactName: 'app'
 
-- stage: deploy
+- stage: Deploy
   jobs:
-  - deployment: deploy
+  - deployment: Deploy
     pool:
-      vmImage: 'vs2017-win2016'
+      vmImage: 'ubuntu-18.04'
     variables:
       storageaccountname: staticwebsitedemostorage
     environment: 'Deploy Application'
