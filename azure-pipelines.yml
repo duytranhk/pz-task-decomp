@@ -31,7 +31,7 @@ stages:
     - task: CopyFiles@2
       displayName: 'Copy Files'
       inputs:
-        SourceFolder: '$(System.DefaultWorkingDirectory)\build'
+        SourceFolder: '$(System.DefaultWorkingDirectory)/build'
         TargetFolder: '$(Build.ArtifactStagingDirectory)'
         CleanTargetFolder: true
 
