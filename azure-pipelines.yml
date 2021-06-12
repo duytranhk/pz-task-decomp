@@ -59,7 +59,7 @@ stages:
           - task: AzureFileCopy@3
             inputs:
               sourcePath: $(Pipeline.Workspace)/build
-              azureSubscription: 'Azure Service Connection'
+              azureSubscription: 'Azure Resource Management (PZ)'
               destination: azureBlob
               storage: $(storageAccount)
               containerName: "$web"
