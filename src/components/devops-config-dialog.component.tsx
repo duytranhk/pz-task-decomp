@@ -81,7 +81,7 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
                         rules={{ required: 'Organisation Url is required' }}
                         render={({ field }) => (
                             <TextField
-                                label="Organisation Url"
+                                label="Your organisation URL"
                                 margin="normal"
                                 type="text"
                                 {...field}
@@ -98,7 +98,7 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
                         rules={{ required: true }}
                         render={({ field }) => (
                             <TextField
-                                label="Personal access token"
+                                label="Your personal access token"
                                 margin="normal"
                                 type="password"
                                 {...field}
@@ -128,7 +128,7 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
                             rules={{ required: true }}
                             render={({ field }) => (
                                 <FormControl fullWidth margin="normal" error={!!errors.selectedProjectId}>
-                                    <InputLabel id="select-project">Select Project</InputLabel>
+                                    <InputLabel id="select-project">Your Project</InputLabel>
                                     <Select {...field} labelId="select-project">
                                         {projects.map((p) => (
                                             <MenuItem key={p.id} value={p.id}>
@@ -148,7 +148,7 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
                             rules={{ required: true }}
                             render={({ field }) => (
                                 <FormControl fullWidth margin="normal" error={!!errors.selectedTeamId}>
-                                    <InputLabel id="select-teams">Select Teams</InputLabel>
+                                    <InputLabel id="select-teams">Your Teams</InputLabel>
                                     <Select {...field} labelId="select-teams">
                                         {teams.map((p) => (
                                             <MenuItem key={p.id} value={p.id}>

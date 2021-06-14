@@ -1,5 +1,5 @@
 import React, { ReactElement, FC, useState } from 'react';
-import { Card, Grid, TextField, CardContent, Typography, CardActions, Button } from '@material-ui/core';
+import { Grid, TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useEffect } from 'react';
 import { useContext } from 'react';
@@ -8,19 +8,10 @@ import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.clie
 import { DevopsIteration, DevopsWorkItem } from '../services/shared/azure-devops/azure-devops.models';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import _ from 'lodash';
+import TaskCard from '../components/task-card.component';
 const useStyles = makeStyles({
     root: {
         flexGrow: 1,
-    },
-    card: {
-        minHeight: 200,
-        flexDirection: 'column',
-        display: 'flex',
-    },
-    cardButtonRow: {
-        marginTop: 'auto',
-        display: 'flex',
-        justifyContent: 'flex-end',
     },
 });
 const TaskDecompPage: FC<any> = (): ReactElement => {
@@ -60,28 +51,24 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
         <Grid container className={classes.root} spacing={2}>
             <Grid item xs={12}>
                 <Autocomplete
-                    id="combo-box-demo"
+                    id="select-iteration"
                     options={iterations}
                     getOptionLabel={(option) => option.name}
                     style={{ width: 300 }}
                     onChange={(event, value) => handleChangeSelectedIterationId(value!)}
-                    renderInput={(params) => <TextField {...params} label="Select Iteration" />}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            variant="outlined"
+                            label="Select Iteration"
+                            helperText={productBackLogItems.length ? `${productBackLogItems.length} items` : ''}
+                        />
+                    )}
                 />
             </Grid>
             {_.map(productBackLogItems, (pbi) => (
-                <Grid item xs={6} key={pbi.id}>
-                    <Card className={classes.card}>
-                        <CardContent>
-                            <Typography variant="h6" color="primary">
-                                {pbi.fields['System.Title']}
-                            </Typography>
-                        </CardContent>
-                        <CardActions className={classes.cardButtonRow}>
-                            <Button variant="outlined" color="secondary" size="small">
-                                Decomp
-                            </Button>
-                        </CardActions>
-                    </Card>
+                <Grid item xs={12} sm={6} lg={4} key={pbi.id}>
+                    <TaskCard task={pbi} />
                 </Grid>
             ))}
         </Grid>
