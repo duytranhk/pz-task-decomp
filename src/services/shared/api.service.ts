@@ -3,7 +3,7 @@ import { AzureDevopsConfig } from '../../contexts/azure-devops.context';
 import UtilService from '../util.service';
 export default class ApiService {
     public static get<T>(endpoint: string, apiVersion: string, query?: { [key: string]: any }): Promise<T> {
-        return this.callApi<any, T>('GET', endpoint, apiVersion, query);
+        return this.callApi<any, T>('GET', endpoint, apiVersion, null, query);
     }
 
     public static post<T, P>(endpoint: string, data: T, apiVersion: string, query?: { [key: string]: any }): Promise<P> {

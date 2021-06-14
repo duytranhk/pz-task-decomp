@@ -2,7 +2,6 @@ import React, { ReactElement, FC, useContext } from 'react';
 import { Typography, makeStyles, AppBar, Toolbar, IconButton, Badge } from '@material-ui/core';
 import BuildIcon from '@material-ui/icons/Build';
 import pzLogo from '../assets/pz-logo.png';
-import DevopsConfigDialog from './devops-config-dialog.component';
 import { AzureDevopsContext } from '../contexts/azure-devops.context';
 const useStyles = makeStyles((theme) => ({
     logo: {
