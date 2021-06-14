@@ -1,9 +1,8 @@
 import React, { ReactElement, FC } from 'react';
 import { Card, makeStyles, Typography, CardHeader, Avatar } from '@material-ui/core';
 import { DevopsWorkItem } from '../services/shared/azure-devops/azure-devops.models';
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
     root: {
-        minHeight: 150,
         flexDirection: 'column',
         display: 'flex',
         transition: 'box-shadow 0.3s ease-in',
@@ -28,7 +27,13 @@ const useStyles = makeStyles({
         height: 50,
         fontSize: 23,
     },
-});
+    title: {
+        textOverflow: 'ellipsis',
+        lineHeight: '1.5em',
+        height: '3em',
+        overflow: 'hidden',
+    },
+}));
 
 const TaskCard: FC<TaskCardProps> = ({ task }): ReactElement => {
     const classes = useStyles();
@@ -54,8 +59,8 @@ const TaskCard: FC<TaskCardProps> = ({ task }): ReactElement => {
                     </Avatar>
                 }
                 title={
-                    <>
-                        <Typography variant="subtitle1" color="primary">
+                    <div>
+                        <Typography className={classes.title} variant="subtitle1" color="primary">
                             {task.fields['System.Title']}
                         </Typography>
                         <Typography variant="caption" color="textSecondary">
@@ -65,7 +70,7 @@ const TaskCard: FC<TaskCardProps> = ({ task }): ReactElement => {
                         <Typography variant="caption" color="textSecondary">
                             Updated on: {new Date(task.fields['System.ChangedDate']).toLocaleString()}
                         </Typography>
-                    </>
+                    </div>
                 }
             />
         </Card>
