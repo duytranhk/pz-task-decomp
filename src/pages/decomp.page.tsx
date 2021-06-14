@@ -5,10 +5,12 @@ import { useEffect } from 'react';
 import { useContext } from 'react';
 import { AzureDevopsContext } from '../contexts/azure-devops.context';
 import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.client';
-import { DevopsIteration, DevopsWorkItem } from '../services/shared/azure-devops/azure-devops.models';
+import { DevopsIteration, BackLogItem } from '../services/shared/azure-devops/azure-devops.models';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import _ from 'lodash';
 import TaskCard from '../components/task-card.component';
+import StoryDetailDialog from '../components/story-detail.component';
+
 const useStyles = makeStyles({
     root: {
         flexGrow: 1,
@@ -18,8 +20,11 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
     const classes = useStyles();
     const { config, hasConfigured } = useContext(AzureDevopsContext);
     const [iterations, setIterations] = useState<DevopsIteration[]>([]);
-    const [productBackLogItems, setProductBackLogItems] = useState<DevopsWorkItem[]>([]);
+    const [productBackLogItems, setProductBackLogItems] = useState<BackLogItem[]>([]);
     const [selectedIterationId, setSelectedIterationId] = useState<string>('');
+    const [selectedTask, setSelectedTask] = useState<BackLogItem>();
+    const [openTaskDetail, setOpenTaskDetail] = useState<boolean>(false);
+
     useEffect(() => {
         if (hasConfigured && config) {
             AzureDevopsClient.getIterations(config.selectedProjectId!, config.selectedTeamId!).then((res) => {
@@ -28,17 +33,28 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
         }
     }, [config, hasConfigured]);
 
+    const handleTaskClick = (task: BackLogItem) => {
+        setSelectedTask(task);
+        setOpenTaskDetail(true);
+    };
+
     useEffect(() => {
         if (config && hasConfigured && selectedIterationId) {
-            AzureDevopsClient.getIterationWorkItems(config.selectedProjectId!, config.selectedTeamId!, selectedIterationId).then((res) => {
-                const pbi = _.filter(res.workItemRelations, (w) => !w.rel && !w.source);
-                AzureDevopsClient.getWorkItems(
-                    config.selectedProjectId!,
-                    _.map(pbi, (p) => p.target!.id)
-                ).then((res) => {
-                    setProductBackLogItems(res.value);
-                });
-            });
+            AzureDevopsClient.getIterationWorkItems(config.selectedProjectId!, config.selectedTeamId!, selectedIterationId).then(
+                (iItems) => {
+                    const pbiIds = _.filter(iItems.workItemRelations, (w) => !w.rel && !w.source);
+                    AzureDevopsClient.getWorkItems(
+                        config.selectedProjectId!,
+                        _.map(pbiIds, (p) => p.target!.id)
+                    ).then((res) => {
+                        const bli = _.map(res.value, (b) => ({
+                            ...b,
+                            taskIds: _.filter(iItems.workItemRelations, (i) => i.source?.id === b.id).map((i) => i.target?.id!),
+                        }));
+                        setProductBackLogItems(bli);
+                    });
+                }
+            );
         } else {
             setProductBackLogItems([]);
         }
@@ -68,9 +84,17 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
             </Grid>
             {_.map(productBackLogItems, (pbi) => (
                 <Grid item xs={12} sm={6} lg={4} key={pbi.id}>
-                    <TaskCard task={pbi} />
+                    <TaskCard task={pbi} onTaskClick={() => handleTaskClick(pbi)} />
                 </Grid>
             ))}
+            {selectedTask && openTaskDetail && config?.selectedProjectId && (
+                <StoryDetailDialog
+                    task={selectedTask}
+                    open={openTaskDetail}
+                    handleClose={() => setOpenTaskDetail(false)}
+                    projectId={config.selectedProjectId}
+                />
+            )}
         </Grid>
     );
 };

@@ -1,6 +1,7 @@
 import React, { ReactElement, FC } from 'react';
 import { Card, makeStyles, Typography, CardHeader, Avatar } from '@material-ui/core';
-import { DevopsWorkItem } from '../services/shared/azure-devops/azure-devops.models';
+import { BackLogItem } from '../services/shared/azure-devops/azure-devops.models';
+import ArrowIcon from '@material-ui/icons/ArrowForwardIos';
 const useStyles = makeStyles((theme) => ({
     root: {
         flexDirection: 'column',
@@ -9,6 +10,10 @@ const useStyles = makeStyles((theme) => ({
         cursor: 'pointer',
         '&:hover, &:focus': {
             boxShadow: '0 0 20px 0 rgba(66, 188, 199, 0.45)',
+        },
+        '& .MuiCardHeader-action': {
+            alignSelf: 'center',
+            color: '#d2dfec',
         },
     },
     cardButtonRow: {
@@ -33,9 +38,12 @@ const useStyles = makeStyles((theme) => ({
         height: '3em',
         overflow: 'hidden',
     },
+    taskDetail: {
+        display: 'grid',
+    },
 }));
 
-const TaskCard: FC<TaskCardProps> = ({ task }): ReactElement => {
+const TaskCard: FC<TaskCardProps> = ({ task, onTaskClick }): ReactElement => {
     const classes = useStyles();
     const getBackground = (point: number): string => {
         if (point <= 3) return 'linear-gradient(145deg, #8bc34a 0%, #D6F7B6 100%)';
@@ -47,7 +55,7 @@ const TaskCard: FC<TaskCardProps> = ({ task }): ReactElement => {
         return 'linear-gradient(145deg, #A6A6A6 0%, #EAEAEA 100%)';
     };
     return (
-        <Card className={classes.root}>
+        <Card className={classes.root} onClick={onTaskClick}>
             <CardHeader
                 avatar={
                     <Avatar
@@ -59,26 +67,30 @@ const TaskCard: FC<TaskCardProps> = ({ task }): ReactElement => {
                     </Avatar>
                 }
                 title={
-                    <div>
+                    <div className={classes.taskDetail}>
                         <Typography className={classes.title} variant="subtitle1" color="primary">
                             {task.fields['System.Title']}
                         </Typography>
                         <Typography variant="caption" color="textSecondary">
-                            Created on: {new Date(task.fields['System.CreatedDate']).toLocaleString()}
+                            <strong>Created on:</strong> {new Date(task.fields['System.CreatedDate']).toLocaleString()}
                         </Typography>
-                        <br />
                         <Typography variant="caption" color="textSecondary">
-                            Updated on: {new Date(task.fields['System.ChangedDate']).toLocaleString()}
+                            <strong>Updated on:</strong> {new Date(task.fields['System.ChangedDate']).toLocaleString()}
+                        </Typography>
+                        <Typography variant="caption" color="textSecondary">
+                            <strong>Subtasks:</strong> {task.taskIds.length}
                         </Typography>
                     </div>
                 }
+                action={<ArrowIcon />}
             />
         </Card>
     );
 };
 
 interface TaskCardProps {
-    task: DevopsWorkItem;
+    task: BackLogItem;
+    onTaskClick: () => void;
 }
 
 export default TaskCard;

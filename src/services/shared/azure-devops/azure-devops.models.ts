@@ -56,4 +56,9 @@ export interface DevopsWorkItemFields {
     'System.Description': string;
     'Microsoft.VSTS.Common.BacklogPriority': number;
     'Microsoft.VSTS.Common.Priority': number;
+    'Microsoft.VSTS.Scheduling.RemainingWork': number;
+}
+
+export interface BackLogItem extends DevopsWorkItem {
+    taskIds: number[];
 }
