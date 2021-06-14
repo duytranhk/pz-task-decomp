@@ -4,14 +4,19 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 const theme = createMuiTheme({
     palette: {
         primary: {
-            main: '#0097a7',
+            dark: '#0097A7',
+            main: '#00BCD4',
+            light: '#B2EBF2',
+            contrastText: '#FFFFFF',
         },
         secondary: {
-            main: '#00838f',
+            main: '#607D8B',
         },
         text: {
-            primary: '#4a4a4a',
+            primary: '#212121',
+            secondary: '#757575',
         },
+        divider: '#BDBDBD',
     },
     overrides: {
         MuiButton: {

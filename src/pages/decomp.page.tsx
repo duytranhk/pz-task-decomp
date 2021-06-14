@@ -77,7 +77,7 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
                             </Typography>
                         </CardContent>
                         <CardActions className={classes.cardButtonRow}>
-                            <Button variant="outlined" color="primary" size="small">
+                            <Button variant="outlined" color="secondary" size="small">
                                 Decomp
                             </Button>
                         </CardActions>
