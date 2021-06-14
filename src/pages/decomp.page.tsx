@@ -9,7 +9,7 @@ import { DevopsIteration, BackLogItem } from '../services/shared/azure-devops/az
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import _ from 'lodash';
 import TaskCard from '../components/task-card.component';
-import StoryDetailDialog from '../components/story-detail.component';
+import StoryDetailDialog from '../components/story-detail-dialog.component';
 
 const useStyles = makeStyles({
     root: {
