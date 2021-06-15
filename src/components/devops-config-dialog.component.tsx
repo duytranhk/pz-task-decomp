@@ -70,7 +70,7 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
     };
 
     return (
-        <Dialog open={props.open} onClose={props.handleClose} fullWidth maxWidth="xs">
+        <Dialog open={props.open} onClose={props.handleClose} fullWidth maxWidth="xs" disableBackdropClick>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <DialogTitle>Azure Devops Configuration</DialogTitle>
                 <DialogContent>

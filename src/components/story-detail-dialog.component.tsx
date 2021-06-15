@@ -19,9 +19,7 @@ import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.clie
 import { makeStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
 const useStyles = makeStyles({
-    dialogContent: {
-        padding: '8px 0',
-    },
+    dialogContent: {},
     taskContainer: {
         flexGrow: 0.5,
         padding: '1rem',
@@ -58,7 +56,7 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, 
     const getStateColor = (state: string): string => {
         switch (state.toLowerCase()) {
             case 'to do':
-                return '#0097a7';
+                return '#FF5722';
             case 'in progress':
                 return '#1976D2';
             case 'done':
@@ -105,7 +103,7 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, 
             <DialogContent className={classes.dialogContent}>
                 <Grid container className={classes.taskContainer} spacing={2}>
                     {_.map(tasks, (t) => (
-                        <Grid item xs={6}>
+                        <Grid item xs={6} key={t.id}>
                             <Card key={t.id}>
                                 <CardHeader
                                     title={

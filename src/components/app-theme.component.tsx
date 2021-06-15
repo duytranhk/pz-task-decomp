@@ -46,11 +46,6 @@ const theme = createMuiTheme({
                 boxShadow: '0 3px 14px 0 rgba(213, 227, 239, 0.6)',
             },
         },
-        MuiBackdrop: {
-            root: {
-                backgroundColor: 'rgba(244, 247, 250, 0.5)',
-            },
-        },
     },
 });
 const AppTheme: FC = (props): ReactElement => {
