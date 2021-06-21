@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useContext, useState } from 'react';
+import React, { FC, ReactElement, useState } from 'react';
 import {
     DialogContent,
     DialogActions,
@@ -14,11 +14,10 @@ import {
     Typography,
 } from '@material-ui/core';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { AzureDevopsConfig, AzureDevopsContext } from '../contexts/azure-devops/azure-devops.context';
 import { useEffect } from 'react';
-import { DevopsProject, DevopsTeams } from '../services/shared/azure-devops/azure-devops.models';
-import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.client';
-import UtilService from '../services/util.service';
+import { AzureDevopsConfig } from '../contexts/azure-devops/azure-devops.model';
+import { useAzureDevopsContext, azureDevopsActions } from '../contexts/azure-devops/azure-devops.context';
+import { ActionTypes } from '../contexts/azure-devops/azure-devops.reducer';
 
 const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement => {
     const {
@@ -26,46 +25,33 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
         handleSubmit,
         formState: { errors },
     } = useForm<AzureDevopsConfig>();
+    const {
+        state: { config, hasConfigured, teams, projects },
+        dispatch,
+    } = useAzureDevopsContext();
     const [hasError, setHasError] = useState(false);
-    const [projects, setProjects] = useState<DevopsProject[]>();
-    const [teams, setTeams] = useState<DevopsTeams[]>();
-    const { config, hasConfigured, setConfig, setHasConfigured } = useContext(AzureDevopsContext);
 
     useEffect(() => {
-        if (hasConfigured) {
-            AzureDevopsClient.getProjects().then((res) => {
-                setProjects(res.value);
-            });
-            AzureDevopsClient.getTeams().then((res) => {
-                setTeams(res.value);
-            });
+        if (hasConfigured && (!projects.length || !teams.length)) {
+            Promise.all([azureDevopsActions.loadProjects()(dispatch), azureDevopsActions.loadTeams()(dispatch)]).then();
         }
     }, []);
 
-    const onSubmit: SubmitHandler<AzureDevopsConfig> = async (data: AzureDevopsConfig) => {
-        UtilService.saveStorageItem('@app:azure-config', data);
-        setConfig(data);
-        const getProject = AzureDevopsClient.getProjects().then((r) => {
-            setProjects(r.value);
-            return r.value;
-        });
-        const getTeams = AzureDevopsClient.getTeams().then((r) => {
-            setTeams(r.value);
-            return r.value;
-        });
-        Promise.all([getProject, getTeams])
+    const onSubmit: SubmitHandler<AzureDevopsConfig> = (data: AzureDevopsConfig) => {
+        azureDevopsActions.setConfig(data)(dispatch);
+        Promise.all([azureDevopsActions.loadProjects()(dispatch), azureDevopsActions.loadTeams()(dispatch)])
             .then(([p, t]) => {
                 setHasError(false);
                 if (p.find((pr) => pr.id === data.selectedProjectId && t.find((te) => te.id === data.selectedTeamId))) {
-                    setHasConfigured(true);
+                    dispatch({ type: ActionTypes.VALIDATE_CONFIG, payload: true });
                     props.handleClose();
                 }
             })
             .catch(() => {
                 setHasError(true);
-                setProjects([]);
-                setTeams([]);
-                setHasConfigured(false);
+                dispatch({ type: ActionTypes.SET_PROJECT, payload: [] });
+                dispatch({ type: ActionTypes.SET_TEAM, payload: [] });
+                dispatch({ type: ActionTypes.VALIDATE_CONFIG, payload: false });
             });
     };
 

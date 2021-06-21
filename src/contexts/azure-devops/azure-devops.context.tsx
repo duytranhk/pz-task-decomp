@@ -1,51 +1,35 @@
-import React, { FC, ReactElement } from 'react';
-import { useEffect } from 'react';
-import { useState } from 'react';
-import AzureDevopsClient from '../../services/shared/azure-devops/azure-devops.client';
-import UtilService from '../../services/util.service';
-export const AzureDevopsContext = React.createContext<AzureDevopsConfigState>({} as any);
+import React, { Dispatch, FC, ReactElement, useContext, useEffect, useReducer } from 'react';
+import { AzureDevopsAction } from './azure-devops.actions';
+import { AzureDevopsActions, AzureDevopsConfigState, azureDevopsReducer } from './azure-devops.reducer';
 
-export interface AzureDevopsConfig {
-    endpoint?: string;
-    accessToken?: string;
-    selectedProjectId?: string;
-    selectedTeamId?: string;
-}
+const initialState: AzureDevopsConfigState = {
+    config: {
+        accessToken: '',
+        endpoint: '',
+        selectedProjectId: '',
+        selectedTeamId: '',
+    },
+    hasConfigured: false,
+    showConfig: false,
+    teams: [],
+    projects: [],
+};
 
-export interface AzureDevopsConfigState {
-    config?: AzureDevopsConfig;
-    hasConfigured?: boolean;
-    showConfig: boolean;
-    setConfig: (config?: AzureDevopsConfig) => void;
-    setHasConfigured: (value: boolean) => void;
-    setShowConfig: (value: boolean) => void;
-}
+export const AzureDevopsContext = React.createContext<ContextWithReducer<AzureDevopsConfigState, Dispatch<AzureDevopsActions>>>({
+    state: initialState,
+    dispatch: () => null,
+});
+
+const reducer = (state: AzureDevopsConfigState, action: AzureDevopsActions) => azureDevopsReducer(state, action);
 
 const AzureDevopsProvider: FC<any> = (props): ReactElement => {
-    const [config, setConfig] = useState<AzureDevopsConfig>();
-    const [hasConfigured, setHasConfigured] = useState(false);
-    const [showConfig, setShowConfig] = useState(false);
+    const [state, dispatch] = useReducer(reducer, initialState);
     useEffect(() => {
-        const savedConfig = UtilService.getStorageObjectItem<AzureDevopsConfig>('@app:azure-config');
-        setConfig(savedConfig!);
-        AzureDevopsClient.getProjects()
-            .then((_) => setHasConfigured(!!savedConfig?.selectedProjectId && !!savedConfig?.selectedTeamId))
-            .catch((_) => setHasConfigured(false));
+        azureDevopsActions.loadConfig()(dispatch);
     }, []);
-
-    return (
-        <AzureDevopsContext.Provider
-            value={{
-                config,
-                hasConfigured,
-                showConfig,
-                setConfig: (config) => setConfig(config),
-                setHasConfigured: (value) => setHasConfigured(value),
-                setShowConfig: (value) => setShowConfig(value),
-            }}
-        >
-            {props.children}
-        </AzureDevopsContext.Provider>
-    );
+    return <AzureDevopsContext.Provider value={{ state, dispatch }}>{props.children}</AzureDevopsContext.Provider>;
 };
-export default AzureDevopsProvider;
+
+const azureDevopsActions = new AzureDevopsAction();
+const useAzureDevopsContext = () => useContext(AzureDevopsContext);
+export { AzureDevopsProvider, useAzureDevopsContext, azureDevopsActions };

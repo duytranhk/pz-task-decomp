@@ -9,6 +9,7 @@ export interface SampleState {
 const initialState: SampleState = {
     sample: {},
 };
+
 const SampleContext = createContext<ContextWithReducer<SampleState, Dispatch<SampleActions>>>({
     state: initialState,
     dispatch: () => null,

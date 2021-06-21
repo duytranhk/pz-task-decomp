@@ -1,8 +1,8 @@
-import React, { ReactElement, FC, useContext } from 'react';
+import React, { ReactElement, FC } from 'react';
 import { Typography, makeStyles, AppBar, Toolbar, IconButton, Badge } from '@material-ui/core';
 import BuildIcon from '@material-ui/icons/Build';
 import pzLogo from '../assets/pz-logo.png';
-import { AzureDevopsContext } from '../contexts/azure-devops/azure-devops.context';
+import { azureDevopsActions, useAzureDevopsContext } from '../contexts/azure-devops/azure-devops.context';
 const useStyles = makeStyles((theme) => ({
     logo: {
         maxHeight: 60,
@@ -18,7 +18,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 const MenuBar: FC<any> = (): ReactElement => {
     const classes = useStyles();
-    const { hasConfigured, setShowConfig } = useContext(AzureDevopsContext);
+    const {
+        state: { hasConfigured },
+        dispatch,
+    } = useAzureDevopsContext();
     return (
         <>
             <AppBar position="static">
@@ -27,8 +30,8 @@ const MenuBar: FC<any> = (): ReactElement => {
                     <Typography variant="h6" className={classes.title}>
                         Quick Decomp
                     </Typography>
-                    <IconButton aria-label="config" color="inherit" onClick={() => setShowConfig(true)}>
-                        <Badge color="error" variant={hasConfigured ? undefined : 'dot'}>
+                    <IconButton aria-label="config" color="inherit" onClick={() => azureDevopsActions.togglePopup(true)(dispatch)}>
+                        <Badge color="error" variant={hasConfigured ? 'standard' : 'dot'}>
                             <BuildIcon />
                         </Badge>
                     </IconButton>
