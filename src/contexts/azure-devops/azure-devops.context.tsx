@@ -1,8 +1,8 @@
 import React, { FC, ReactElement } from 'react';
 import { useEffect } from 'react';
 import { useState } from 'react';
-import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.client';
-import UtilService from '../services/util.service';
+import AzureDevopsClient from '../../services/shared/azure-devops/azure-devops.client';
+import UtilService from '../../services/util.service';
 export const AzureDevopsContext = React.createContext<AzureDevopsConfigState>({} as any);
 
 export interface AzureDevopsConfig {

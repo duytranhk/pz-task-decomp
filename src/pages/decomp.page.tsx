@@ -3,7 +3,7 @@ import { Grid, TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useEffect } from 'react';
 import { useContext } from 'react';
-import { AzureDevopsContext } from '../contexts/azure-devops.context';
+import { AzureDevopsContext } from '../contexts/azure-devops/azure-devops.context';
 import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.client';
 import { DevopsIteration, BackLogItem } from '../services/shared/azure-devops/azure-devops.models';
 import Autocomplete from '@material-ui/lab/Autocomplete';

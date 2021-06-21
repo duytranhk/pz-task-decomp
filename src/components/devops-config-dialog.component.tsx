@@ -14,7 +14,7 @@ import {
     Typography,
 } from '@material-ui/core';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { AzureDevopsConfig, AzureDevopsContext } from '../contexts/azure-devops.context';
+import { AzureDevopsConfig, AzureDevopsContext } from '../contexts/azure-devops/azure-devops.context';
 import { useEffect } from 'react';
 import { DevopsProject, DevopsTeams } from '../services/shared/azure-devops/azure-devops.models';
 import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.client';

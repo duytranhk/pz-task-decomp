@@ -2,7 +2,7 @@ import React, { ReactElement, FC } from 'react';
 import { Link, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useContext } from 'react';
-import { AzureDevopsContext } from '../contexts/azure-devops.context';
+import { AzureDevopsContext } from '../contexts/azure-devops/azure-devops.context';
 import SuccessIcon from '@material-ui/icons/CheckCircle';
 import WarningIcon from '@material-ui/icons/Warning';
 import clsx from 'clsx';
