@@ -5,10 +5,10 @@ export interface RouteItem {
     title: String;
     tooltip?: String;
     path?: String;
-    component?: FC<{}>;
+    component: FC<{}>;
     enabled: boolean;
-    icon?: ComponentType;
+    icon: ComponentType;
     subRoutes?: Array<RouteItem>;
     appendDivider?: boolean;
-    background?: string;
+    background: string;
 }

@@ -1,8 +1,7 @@
 import React, { ReactElement, FC } from 'react';
 import { Link, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { useContext } from 'react';
-import { AzureDevopsContext } from '../contexts/azure-devops.context';
+import { azureDevopsActions, useAzureDevopsContext } from '../contexts/azure-devops/azure-devops.context';
 import SuccessIcon from '@material-ui/icons/CheckCircle';
 import WarningIcon from '@material-ui/icons/Warning';
 import clsx from 'clsx';
@@ -32,10 +31,13 @@ const useStyles = makeStyles({
 });
 const HomePage: FC<any> = (): ReactElement => {
     const classes = useStyles();
-    const { hasConfigured, setShowConfig } = useContext(AzureDevopsContext);
+    const {
+        state: { hasConfigured },
+        dispatch,
+    } = useAzureDevopsContext();
     const handleSettingClick = (event: React.SyntheticEvent) => {
         event.preventDefault();
-        setShowConfig(true);
+        azureDevopsActions.togglePopup(true)(dispatch);
     };
     return (
         <div className={classes.root}>

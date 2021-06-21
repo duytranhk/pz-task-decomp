@@ -2,8 +2,7 @@ import React, { ReactElement, FC, useState } from 'react';
 import { Grid, TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useEffect } from 'react';
-import { useContext } from 'react';
-import { AzureDevopsContext } from '../contexts/azure-devops.context';
+import { useAzureDevopsContext } from '../contexts/azure-devops/azure-devops.context';
 import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.client';
 import { DevopsIteration, BackLogItem } from '../services/shared/azure-devops/azure-devops.models';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -18,7 +17,9 @@ const useStyles = makeStyles({
 });
 const TaskDecompPage: FC<any> = (): ReactElement => {
     const classes = useStyles();
-    const { config, hasConfigured } = useContext(AzureDevopsContext);
+    const {
+        state: { config, hasConfigured },
+    } = useAzureDevopsContext();
     const [iterations, setIterations] = useState<DevopsIteration[]>([]);
     const [productBackLogItems, setProductBackLogItems] = useState<BackLogItem[]>([]);
     const [selectedIterationId, setSelectedIterationId] = useState<string>('');

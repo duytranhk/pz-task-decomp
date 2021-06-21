@@ -1,7 +1,6 @@
 import { Icon, makeStyles, Tooltip } from '@material-ui/core';
 import React, { ReactElement, FC } from 'react';
 import { RouteItem } from '../models/route-item.model';
-import DefaultIcon from '@material-ui/icons/FileCopy';
 import { NavLink } from 'react-router-dom';
 const useStyles = makeStyles({
     root: {
@@ -36,7 +35,7 @@ const NavigationItem: FC<NavigationItemProps> = ({ routeItem }): ReactElement =>
                 activeClassName={classes.selected}
                 style={{ background: routeItem.background }}
             >
-                <Icon className={classes.icon} component={routeItem.icon || DefaultIcon} />
+                <Icon className={classes.icon} component={routeItem.icon} />
             </NavLink>
         </Tooltip>
     );

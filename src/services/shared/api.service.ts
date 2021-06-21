@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
-import { AzureDevopsConfig } from '../../contexts/azure-devops.context';
+import { AzureDevopsConfig } from '../../contexts/azure-devops/azure-devops.model';
 import UtilService from '../util.service';
 export default class ApiService {
     public static get<T>(endpoint: string, apiVersion: string, query?: { [key: string]: any }): Promise<T> {
