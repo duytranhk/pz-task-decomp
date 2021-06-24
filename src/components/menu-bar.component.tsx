@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
 const MenuBar: FC<any> = (): ReactElement => {
     const classes = useStyles();
     const {
-        state: { hasConfigured },
+        state: { isValidated },
         dispatch,
     } = useAzureDevopsContext();
     return (
@@ -31,7 +31,7 @@ const MenuBar: FC<any> = (): ReactElement => {
                         Quick Decomp
                     </Typography>
                     <IconButton aria-label="config" color="inherit" onClick={() => azureDevopsActions.togglePopup(true)(dispatch)}>
-                        <Badge color="error" variant={hasConfigured ? 'standard' : 'dot'}>
+                        <Badge color="error" variant={isValidated ? 'standard' : 'dot'}>
                             <BuildIcon />
                         </Badge>
                     </IconButton>

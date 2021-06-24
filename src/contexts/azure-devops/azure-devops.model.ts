@@ -2,7 +2,6 @@ export interface AzureDevopsConfig {
     endpoint?: string;
     accessToken?: string;
     selectedProjectId?: string;
-    selectedTeamId?: string;
 }
 
 export interface WorkItemFields {

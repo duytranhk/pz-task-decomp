@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useState } from 'react';
+import React, { FC, ReactElement, useEffect, useState } from 'react';
 import {
     DialogContent,
     DialogActions,
@@ -14,11 +14,10 @@ import {
     Typography,
 } from '@material-ui/core';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { useEffect } from 'react';
 import { AzureDevopsConfig } from '../contexts/azure-devops/azure-devops.model';
 import { useAzureDevopsContext, azureDevopsActions } from '../contexts/azure-devops/azure-devops.context';
-import { ActionTypes } from '../contexts/azure-devops/azure-devops.reducer';
 import { loaderActions, useLoaderContext } from '../contexts/loader/loader.context';
+import { ActionTypes } from '../contexts/azure-devops/azure-devops.reducer';
 
 const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement => {
     const {
@@ -27,46 +26,40 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
         formState: { errors },
     } = useForm<AzureDevopsConfig>();
     const {
-        state: { config, hasConfigured, teams, projects },
+        state: { config, projects },
         dispatch,
     } = useAzureDevopsContext();
     const loaderContext = useLoaderContext();
     const [hasError, setHasError] = useState(false);
 
-    useEffect(() => {
-        if (hasConfigured && (!projects.length || !teams.length)) {
-            loaderActions.showLoader(loaderContext.dispatch);
-            Promise.all([azureDevopsActions.loadProjects()(dispatch), azureDevopsActions.loadTeams()(dispatch)]).then((_) =>
-                loaderActions.hideLoader(loaderContext.dispatch)
-            );
-        }
-    }, []);
-
-    const onSubmit: SubmitHandler<AzureDevopsConfig> = (data: AzureDevopsConfig) => {
-        azureDevopsActions.setConfig(data)(dispatch);
+    const onSubmit: SubmitHandler<AzureDevopsConfig> = async (data: AzureDevopsConfig) => {
+        setHasError(false);
         loaderActions.showLoader(loaderContext.dispatch);
-        Promise.all([azureDevopsActions.loadProjects()(dispatch), azureDevopsActions.loadTeams()(dispatch)])
-            .then(([p, t]) => {
-                setHasError(false);
-                if (p.find((pr) => pr.id === data.selectedProjectId && t.find((te) => te.id === data.selectedTeamId))) {
-                    dispatch({ type: ActionTypes.VALIDATE_CONFIG, payload: true });
-                    loaderActions.hideLoader(loaderContext.dispatch);
-                    props.handleClose();
-                }
-            })
-            .catch(() => {
-                setHasError(true);
-                loaderActions.hideLoader(loaderContext.dispatch);
-                dispatch({ type: ActionTypes.SET_PROJECT, payload: [] });
-                dispatch({ type: ActionTypes.SET_TEAM, payload: [] });
-                dispatch({ type: ActionTypes.VALIDATE_CONFIG, payload: false });
-            });
+
+        if (config?.endpoint !== data.endpoint || config?.accessToken !== data.accessToken) {
+            data.selectedProjectId = '';
+        }
+
+        if (await azureDevopsActions.validate(data)(dispatch)) {
+            data.selectedProjectId && props.handleClose();
+        } else {
+            setHasError(true);
+        }
+        loaderActions.hideLoader(loaderContext.dispatch);
     };
 
     return (
         <Dialog open={props.open} onClose={props.handleClose} fullWidth maxWidth="xs" disableBackdropClick>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <DialogTitle>Azure Devops Configuration</DialogTitle>
+                <DialogTitle>
+                    Azure Devops Configuration
+                    <br />
+                    {hasError && (
+                        <Typography variant="caption" color="error">
+                            Unable to verify your setting. Try again
+                        </Typography>
+                    )}
+                </DialogTitle>
                 <DialogContent>
                     <Controller
                         name="endpoint"
@@ -109,42 +102,18 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
                             />
                         )}
                     />
-                    {hasError && (
-                        <Typography variant="caption" color="error">
-                            Unable to verify your setting. Try again
-                        </Typography>
-                    )}
-                    {!!projects?.length && (
+
+                    {!!projects.length && (
                         <Controller
                             name="selectedProjectId"
                             control={control}
                             defaultValue={config?.selectedProjectId || ''}
                             rules={{ required: true }}
                             render={({ field }) => (
-                                <FormControl fullWidth margin="normal" error={!!errors.selectedProjectId}>
+                                <FormControl fullWidth margin="dense" error={!!errors.selectedProjectId}>
                                     <InputLabel id="select-project">Your Project</InputLabel>
                                     <Select {...field} labelId="select-project">
                                         {projects.map((p) => (
-                                            <MenuItem key={p.id} value={p.id}>
-                                                {p.name}
-                                            </MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                            )}
-                        />
-                    )}
-                    {!!teams?.length && (
-                        <Controller
-                            name="selectedTeamId"
-                            control={control}
-                            defaultValue={config?.selectedTeamId || ''}
-                            rules={{ required: true }}
-                            render={({ field }) => (
-                                <FormControl fullWidth margin="normal" error={!!errors.selectedTeamId}>
-                                    <InputLabel id="select-teams">Your Teams</InputLabel>
-                                    <Select {...field} labelId="select-teams">
-                                        {teams.map((p) => (
                                             <MenuItem key={p.id} value={p.id}>
                                                 {p.name}
                                             </MenuItem>
@@ -160,7 +129,7 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
                         Cancel
                     </Button>
                     <Button type="submit" variant="contained" color="primary" autoFocus>
-                        {projects?.length ? 'Save' : 'Verify'}
+                        {projects.length ? 'Save' : 'Verify'}
                     </Button>
                 </DialogActions>
             </form>

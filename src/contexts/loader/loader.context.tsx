@@ -44,6 +44,6 @@ const LoaderProvider: FC<any> = (props): ReactElement => {
     );
 };
 
-const useLoaderContext = () => useContext(LoaderContext);
+const useLoaderContext = () => useContext<ContextWithReducer<LoaderState, Dispatch<LoaderActions>>>(LoaderContext);
 const loaderActions = new LoaderAction();
 export { LoaderProvider, useLoaderContext, loaderActions };

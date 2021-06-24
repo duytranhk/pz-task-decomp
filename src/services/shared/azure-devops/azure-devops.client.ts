@@ -11,16 +11,13 @@ export default class AzureDevopsClient {
         return ApiService.get<AzureDevopsResponse<DevopsTeams[]>>('_apis/teams', '6.1-preview.3', { $mine: true });
     }
 
-    public static getIterations(projectId: string, teamId: string) {
-        return ApiService.get<AzureDevopsResponse<DevopsIteration[]>>(
-            `${projectId}/${teamId}/_apis/work/teamsettings/iterations`,
-            '6.1-preview.1'
-        );
+    public static getIterations(projectId: string) {
+        return ApiService.get<AzureDevopsResponse<DevopsIteration[]>>(`${projectId}/_apis/work/teamsettings/iterations`, '6.1-preview.1');
     }
 
-    public static getIterationWorkItems(projectId: string, teamId: string, iterationId: string) {
+    public static getIterationWorkItems(projectId: string, iterationId: string) {
         return ApiService.get<DevopsTaskBoardWorkItem>(
-            `${projectId}/${teamId}/_apis/work/teamsettings/iterations/${iterationId}/workitems`,
+            `${projectId}/_apis/work/teamsettings/iterations/${iterationId}/workitems`,
             '6.1-preview.1'
         );
     }

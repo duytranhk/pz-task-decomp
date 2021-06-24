@@ -1,4 +1,4 @@
-import { DevopsTeams } from './../../services/shared/azure-devops/azure-devops.models';
+import { DevopsIteration } from './../../services/shared/azure-devops/azure-devops.models';
 import { DevopsProject } from '../../services/shared/azure-devops/azure-devops.models';
 import UtilService from '../../services/util.service';
 import { AzureDevopsConfig } from './azure-devops.model';
@@ -8,15 +8,15 @@ export enum ActionTypes {
     VALIDATE_CONFIG = 'VALIDATE_CONFIG',
     TOGGLE_CONFIG_POPUP = 'TOGGLE_CONFIG_POPUP',
     SET_PROJECT = 'SET_PROJECT',
-    SET_TEAM = 'SET_TEAM',
+    SET_ITERATION = 'SET_ITERATION',
 }
 
 export interface AzureDevopsConfigState {
     config: AzureDevopsConfig | null;
-    hasConfigured: boolean;
+    isValidated: boolean;
     showConfig: boolean;
     projects: DevopsProject[];
-    teams: DevopsTeams[];
+    iterations: DevopsIteration[];
 }
 
 interface AzureDevopsPayload {
@@ -24,7 +24,7 @@ interface AzureDevopsPayload {
     [ActionTypes.VALIDATE_CONFIG]: boolean;
     [ActionTypes.TOGGLE_CONFIG_POPUP]: boolean;
     [ActionTypes.SET_PROJECT]: DevopsProject[];
-    [ActionTypes.SET_TEAM]: DevopsTeams[];
+    [ActionTypes.SET_ITERATION]: DevopsIteration[];
 }
 
 export type AzureDevopsActions = ActionMap<AzureDevopsPayload>[keyof ActionMap<AzureDevopsPayload>];
@@ -32,15 +32,15 @@ export type AzureDevopsActions = ActionMap<AzureDevopsPayload>[keyof ActionMap<A
 export const azureDevopsReducer = (state: AzureDevopsConfigState, action: AzureDevopsActions) => {
     switch (action.type) {
         case ActionTypes.SET_CONFIG:
-            UtilService.saveStorageItem('@app:azure-config', action.payload);
-            return { ...state, config: { ...state.config, ...action.payload } };
+            const config = { ...state.config, ...action.payload };
+            UtilService.saveStorageItem('@app:azure-config', config);
+            return { ...state, config };
         case ActionTypes.VALIDATE_CONFIG:
-            const hasConfigured = !!state.config?.selectedProjectId && !!state.config?.selectedTeamId && action.payload;
-            return { ...state, hasConfigured };
+            return { ...state, isValidated: action.payload };
         case ActionTypes.TOGGLE_CONFIG_POPUP:
             return { ...state, showConfig: action.payload };
-        case ActionTypes.SET_TEAM:
-            return { ...state, teams: action.payload };
+        case ActionTypes.SET_ITERATION:
+            return { ...state, iterations: action.payload };
         case ActionTypes.SET_PROJECT:
             return { ...state, projects: action.payload };
         default:

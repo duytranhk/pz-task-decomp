@@ -7,26 +7,13 @@ import { ActionTypes, AzureDevopsActions } from './azure-devops.reducer';
 export class AzureDevopsAction {
     loadConfig = () => async (dispatch: Dispatch<AzureDevopsActions>) => {
         const savedConfig = UtilService.getStorageObjectItem<AzureDevopsConfig>('@app:azure-config');
-        dispatch({ type: ActionTypes.SET_CONFIG, payload: savedConfig! });
-        if (savedConfig) {
-            try {
-                await this.loadProjects()(dispatch);
-                await this.loadTeams()(dispatch);
-                dispatch({ type: ActionTypes.VALIDATE_CONFIG, payload: true });
-            } catch (error) {
-                dispatch({ type: ActionTypes.VALIDATE_CONFIG, payload: false });
-            }
+        if (await this.validate(savedConfig!)(dispatch)) {
+            this.setConfig(savedConfig!)(dispatch);
         }
     };
 
     setConfig = (config: AzureDevopsConfig) => async (dispatch: Dispatch<AzureDevopsActions>) => {
         dispatch({ type: ActionTypes.SET_CONFIG, payload: config });
-        try {
-            await this.loadProjects()(dispatch);
-            dispatch({ type: ActionTypes.VALIDATE_CONFIG, payload: true });
-        } catch (error) {
-            dispatch({ type: ActionTypes.VALIDATE_CONFIG, payload: false });
-        }
     };
 
     loadProjects = () => async (dispatch: Dispatch<AzureDevopsActions>) => {
@@ -35,13 +22,30 @@ export class AzureDevopsAction {
         return res.value;
     };
 
-    loadTeams = () => async (dispatch: Dispatch<AzureDevopsActions>) => {
-        const res = await AzureDevopsClient.getTeams();
-        dispatch({ type: ActionTypes.SET_TEAM, payload: res.value });
+    loadIteration = (projectId: string) => async (dispatch: Dispatch<AzureDevopsActions>) => {
+        const res = await AzureDevopsClient.getIterations(projectId);
+        dispatch({ type: ActionTypes.SET_ITERATION, payload: res.value });
         return res.value;
     };
 
     togglePopup = (value: boolean) => (dispatch: Dispatch<AzureDevopsActions>) => {
         dispatch({ type: ActionTypes.TOGGLE_CONFIG_POPUP, payload: value });
+    };
+
+    validate = (config: AzureDevopsConfig) => async (dispatch: Dispatch<AzureDevopsActions>) => {
+        this.setConfig(config)(dispatch);
+        try {
+            await this.loadProjects()(dispatch);
+            if (config?.selectedProjectId) {
+                await this.loadIteration(config.selectedProjectId)(dispatch);
+            }
+            dispatch({ type: ActionTypes.VALIDATE_CONFIG, payload: true });
+            return true;
+        } catch (error) {
+            dispatch({ type: ActionTypes.VALIDATE_CONFIG, payload: false });
+            dispatch({ type: ActionTypes.SET_PROJECT, payload: [] });
+            dispatch({ type: ActionTypes.SET_CONFIG, payload: { selectedProjectId: '' } });
+        }
+        return false;
     };
 }

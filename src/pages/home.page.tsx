@@ -32,7 +32,7 @@ const useStyles = makeStyles({
 const HomePage: FC<any> = (): ReactElement => {
     const classes = useStyles();
     const {
-        state: { hasConfigured },
+        state: { isValidated },
         dispatch,
     } = useAzureDevopsContext();
     const handleSettingClick = (event: React.SyntheticEvent) => {
@@ -41,7 +41,7 @@ const HomePage: FC<any> = (): ReactElement => {
     };
     return (
         <div className={classes.root}>
-            {hasConfigured ? (
+            {isValidated ? (
                 <div>
                     <SuccessIcon className={clsx(classes.icon, classes.success)} />
                     <Typography className={classes.title} variant="h3" color="primary" gutterBottom>

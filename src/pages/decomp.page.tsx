@@ -19,24 +19,13 @@ const useStyles = makeStyles({
 const TaskDecompPage: FC<any> = (): ReactElement => {
     const classes = useStyles();
     const {
-        state: { config, hasConfigured },
+        state: { config, isValidated, iterations },
     } = useAzureDevopsContext();
     const loaderContext = useLoaderContext();
-    const [iterations, setIterations] = useState<DevopsIteration[]>([]);
     const [productBackLogItems, setProductBackLogItems] = useState<BackLogItem[]>([]);
     const [selectedIterationId, setSelectedIterationId] = useState<string>('');
     const [selectedTask, setSelectedTask] = useState<BackLogItem>();
     const [openTaskDetail, setOpenTaskDetail] = useState<boolean>(false);
-
-    useEffect(() => {
-        if (hasConfigured && config) {
-            loaderActions.showLoader(loaderContext.dispatch);
-            AzureDevopsClient.getIterations(config.selectedProjectId!, config.selectedTeamId!).then((res) => {
-                setIterations(res.value);
-                loaderActions.hideLoader(loaderContext.dispatch);
-            });
-        }
-    }, [config, hasConfigured]);
 
     const handleTaskClick = (task: BackLogItem) => {
         setSelectedTask(task);
@@ -65,33 +54,31 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
     };
 
     useEffect(() => {
-        if (config && hasConfigured && selectedIterationId) {
+        if (config && isValidated && selectedIterationId) {
             loaderActions.showLoader(loaderContext.dispatch);
-            AzureDevopsClient.getIterationWorkItems(config.selectedProjectId!, config.selectedTeamId!, selectedIterationId).then(
-                (iItems) => {
-                    const pbiIds = _.filter(iItems.workItemRelations, (w) => !w.rel && !w.source);
-                    if (!pbiIds?.length) {
-                        setProductBackLogItems([]);
-                        loaderActions.hideLoader(loaderContext.dispatch);
-                        return;
-                    }
-                    AzureDevopsClient.getWorkItems(
-                        config.selectedProjectId!,
-                        _.map(pbiIds, (p) => p.target!.id)
-                    ).then((res) => {
-                        const bli = _.map(res.value, (b) => ({
-                            ...b,
-                            taskIds: _.filter(iItems.workItemRelations, (i) => i.source?.id === b.id).map((i) => i.target?.id!),
-                        }));
-                        setProductBackLogItems(bli);
-                        loaderActions.hideLoader(loaderContext.dispatch);
-                    });
+            AzureDevopsClient.getIterationWorkItems(config.selectedProjectId!, selectedIterationId).then((iItems) => {
+                const pbiIds = _.filter(iItems.workItemRelations, (w) => !w.rel && !w.source);
+                if (!pbiIds?.length) {
+                    setProductBackLogItems([]);
+                    loaderActions.hideLoader(loaderContext.dispatch);
+                    return;
                 }
-            );
+                AzureDevopsClient.getWorkItems(
+                    config.selectedProjectId!,
+                    _.map(pbiIds, (p) => p.target!.id)
+                ).then((res) => {
+                    const bli = _.map(res.value, (b) => ({
+                        ...b,
+                        taskIds: _.filter(iItems.workItemRelations, (i) => i.source?.id === b.id).map((i) => i.target?.id!),
+                    }));
+                    setProductBackLogItems(bli);
+                    loaderActions.hideLoader(loaderContext.dispatch);
+                });
+            });
         } else {
             setProductBackLogItems([]);
         }
-    }, [config, hasConfigured, selectedIterationId]);
+    }, [config, selectedIterationId]);
 
     const handleChangeSelectedIterationId = (value: DevopsIteration) => {
         setSelectedIterationId(value?.id!);

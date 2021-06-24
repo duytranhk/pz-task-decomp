@@ -1,4 +1,5 @@
 import React, { Dispatch, FC, ReactElement, useContext, useEffect, useReducer } from 'react';
+import { loaderActions, useLoaderContext } from '../loader/loader.context';
 import { AzureDevopsAction } from './azure-devops.actions';
 import { AzureDevopsActions, AzureDevopsConfigState, azureDevopsReducer } from './azure-devops.reducer';
 
@@ -7,12 +8,11 @@ const initialState: AzureDevopsConfigState = {
         accessToken: '',
         endpoint: '',
         selectedProjectId: '',
-        selectedTeamId: '',
     },
-    hasConfigured: false,
+    isValidated: false,
     showConfig: false,
-    teams: [],
     projects: [],
+    iterations: [],
 };
 
 export const AzureDevopsContext = React.createContext<ContextWithReducer<AzureDevopsConfigState, Dispatch<AzureDevopsActions>>>({
@@ -24,12 +24,17 @@ const reducer = (state: AzureDevopsConfigState, action: AzureDevopsActions) => a
 
 const AzureDevopsProvider: FC<any> = (props): ReactElement => {
     const [state, dispatch] = useReducer(reducer, initialState);
+    const loaderContext = useLoaderContext();
     useEffect(() => {
-        azureDevopsActions.loadConfig()(dispatch);
+        loaderActions.showLoader(loaderContext.dispatch);
+        azureDevopsActions
+            .loadConfig()(dispatch)
+            .finally(() => loaderActions.hideLoader(loaderContext.dispatch));
     }, []);
     return <AzureDevopsContext.Provider value={{ state, dispatch }}>{props.children}</AzureDevopsContext.Provider>;
 };
 
 const azureDevopsActions = new AzureDevopsAction();
-const useAzureDevopsContext = () => useContext(AzureDevopsContext);
+const useAzureDevopsContext = () =>
+    useContext<ContextWithReducer<AzureDevopsConfigState, Dispatch<AzureDevopsActions>>>(AzureDevopsContext);
 export { AzureDevopsProvider, useAzureDevopsContext, azureDevopsActions };
