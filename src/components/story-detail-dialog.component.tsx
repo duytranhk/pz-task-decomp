@@ -12,12 +12,16 @@ import {
     CardHeader,
     MenuItem,
     Menu,
+    IconButton,
 } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
 import { useEffect } from 'react';
 import { BackLogItem, DevopsWorkItem } from '../services/shared/azure-devops/azure-devops.models';
 import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.client';
 import { makeStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
+import { GenerateTaskType } from '../contexts/azure-devops/azure-devops.model';
+import { DefaultTasks } from '../utils/constants';
 const useStyles = makeStyles({
     dialogContent: {},
     taskContainer: {
@@ -35,7 +39,7 @@ const useStyles = makeStyles({
         display: 'flex',
     },
 });
-const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, handleClose }): ReactElement => {
+const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, handleClose, onSubmit }): ReactElement => {
     const classes = useStyles();
     const [tasks, setTasks] = useState<DevopsWorkItem[]>([]);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -44,16 +48,18 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, 
             AzureDevopsClient.getWorkItems(projectId, task.taskIds).then((res) => {
                 setTasks(
                     _.orderBy(res.value, (v) => {
-                        if (v.fields['System.State'].toLocaleLowerCase() === 'to do') return 0;
-                        if (v.fields['System.State'].toLocaleLowerCase() === 'in progress') return 1;
-                        if (v.fields['System.State'].toLocaleLowerCase() === 'done') return 2;
+                        if (v.fields['System.State']?.toLocaleLowerCase() === 'to do') return 0;
+                        if (v.fields['System.State']?.toLocaleLowerCase() === 'in progress') return 1;
+                        if (v.fields['System.State']?.toLocaleLowerCase() === 'done') return 2;
                         return 3;
                     })
                 );
             });
         }
     }, [task, projectId]);
-    const getStateColor = (state: string): string => {
+
+    const getStateColor = (state?: string): string => {
+        if (!state) return '';
         switch (state.toLowerCase()) {
             case 'to do':
                 return '#FF5722';
@@ -73,9 +79,46 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, 
         setAnchorEl(null);
     };
 
-    const onGenerateTaskClick = () => {
-        alert('Coming soon');
-        setAnchorEl(null);
+    const onGenerateTaskClick = (type: GenerateTaskType) => {
+        switch (type) {
+            case GenerateTaskType.API:
+            case GenerateTaskType.UI:
+            case GenerateTaskType.Common:
+                const newTasks = _.map(
+                    _.filter(DefaultTasks[type], (n) => !_.some(tasks, (t) => t.fields['System.Title'] === n)),
+                    (name, index) => createNewTask(name, index)
+                );
+                setTasks([...tasks, ...newTasks]);
+                break;
+            case GenerateTaskType.Single:
+                const newTask = createNewTask('Single Task');
+                tasks.push(newTask);
+                setTasks(tasks);
+                break;
+        }
+        handleCloseMenu();
+    };
+
+    const createNewTask = (title: string, index: number = 0): DevopsWorkItem => {
+        return {
+            id: (new Date().getTime() + index) * -1,
+            rev: 0,
+            url: '',
+            fields: {
+                'System.Title': title,
+                'System.State': 'To Do',
+            },
+        };
+    };
+
+    const handleSave = () => {
+        const newTasks = _.filter(tasks, (t) => t.id < 0);
+        onSubmit(newTasks);
+        handleClose();
+    };
+
+    const handleDeleteTask = (task: DevopsWorkItem) => {
+        setTasks(_.filter(tasks, (t) => t.id !== task.id));
     };
 
     return (
@@ -94,9 +137,10 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, 
                         Add
                     </Button>
                     <Menu id="generate-task-menu" anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={handleCloseMenu}>
-                        <MenuItem onClick={onGenerateTaskClick}>UI tasks</MenuItem>
-                        <MenuItem onClick={onGenerateTaskClick}>API tasks</MenuItem>
-                        <MenuItem onClick={onGenerateTaskClick}>Single task</MenuItem>
+                        <MenuItem onClick={() => onGenerateTaskClick(GenerateTaskType.Common)}>Common tasks</MenuItem>
+                        <MenuItem onClick={() => onGenerateTaskClick(GenerateTaskType.API)}>API tasks</MenuItem>
+                        <MenuItem onClick={() => onGenerateTaskClick(GenerateTaskType.UI)}>UI tasks</MenuItem>
+                        <MenuItem onClick={() => onGenerateTaskClick(GenerateTaskType.Single)}>Single task</MenuItem>
                     </Menu>
                 </div>
             </DialogTitle>
@@ -114,14 +158,21 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, 
                                             <Typography variant="caption">
                                                 Remaining work: {t.fields['Microsoft.VSTS.Scheduling.RemainingWork'] || 0}
                                             </Typography>
+                                            <br />
+                                            <Chip
+                                                className={classes.taskState}
+                                                size="small"
+                                                label={t.fields['System.State']}
+                                                style={{ backgroundColor: getStateColor(t.fields['System.State']) }}
+                                            />
                                         </>
                                     }
                                     action={
-                                        <Chip
-                                            className={classes.taskState}
-                                            label={t.fields['System.State']}
-                                            style={{ backgroundColor: getStateColor(t.fields['System.State']) }}
-                                        />
+                                        t.id < 0 && (
+                                            <IconButton aria-label="delete" onClick={() => handleDeleteTask(t)}>
+                                                <DeleteIcon />
+                                            </IconButton>
+                                        )
                                     }
                                 />
                             </Card>
@@ -133,7 +184,7 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, 
                 <Button onClick={handleClose} color="default">
                     Cancel
                 </Button>
-                <Button type="submit" variant="contained" color="primary" autoFocus>
+                <Button variant="contained" color="primary" autoFocus onClick={handleSave}>
                     Save
                 </Button>
             </DialogActions>
@@ -143,6 +194,7 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, 
 export interface StoryDetailDialogProps {
     open: boolean;
     handleClose: () => void;
+    onSubmit: (newTasks: DevopsWorkItem[]) => void;
     task: BackLogItem;
     projectId: string;
 }

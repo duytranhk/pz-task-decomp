@@ -10,6 +10,10 @@ export default class ApiService {
         return this.callApi<T, P>('POST', endpoint, apiVersion, data, query);
     }
 
+    public static patch<T, P>(endpoint: string, data: T, apiVersion: string, query?: { [key: string]: any }): Promise<P> {
+        return this.callApi<T, P>('PATCH', endpoint, apiVersion, data, query);
+    }
+
     public static callApi<T, P>(
         method: Method,
         endpoint: string,
@@ -34,6 +38,11 @@ export default class ApiService {
             },
             data,
         };
+
+        if (data) {
+            option.headers['content-type'] = 'application/json-patch+json';
+        }
+
         return axios.request<T, AxiosResponse<P>>(option).then((response) => {
             return new Promise<P>((resolve, reject) => {
                 if (response.status === 200) {

@@ -61,7 +61,7 @@ const TaskCard: FC<TaskCardProps> = ({ task, onTaskClick }): ReactElement => {
                     <Avatar
                         className={classes.avatar}
                         aria-label="recipe"
-                        style={{ background: getBackground(task.fields['Microsoft.VSTS.Scheduling.Effort']) }}
+                        style={{ background: getBackground(task.fields['Microsoft.VSTS.Scheduling.Effort']!) }}
                     >
                         {task.fields['Microsoft.VSTS.Scheduling.Effort'] || '...'}
                     </Avatar>
@@ -72,10 +72,10 @@ const TaskCard: FC<TaskCardProps> = ({ task, onTaskClick }): ReactElement => {
                             {task.fields['System.Title']}
                         </Typography>
                         <Typography variant="caption" color="textSecondary">
-                            <strong>Created on:</strong> {new Date(task.fields['System.CreatedDate']).toLocaleString()}
+                            <strong>Created on:</strong> {new Date(task.fields['System.CreatedDate']!).toLocaleString()}
                         </Typography>
                         <Typography variant="caption" color="textSecondary">
-                            <strong>Updated on:</strong> {new Date(task.fields['System.ChangedDate']).toLocaleString()}
+                            <strong>Updated on:</strong> {new Date(task.fields['System.ChangedDate']!).toLocaleString()}
                         </Typography>
                         <Typography variant="caption" color="textSecondary">
                             <strong>Subtasks:</strong> {task.taskIds.length}

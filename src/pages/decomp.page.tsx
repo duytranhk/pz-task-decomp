@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useEffect } from 'react';
 import { useAzureDevopsContext } from '../contexts/azure-devops/azure-devops.context';
 import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.client';
-import { DevopsIteration, BackLogItem } from '../services/shared/azure-devops/azure-devops.models';
+import { DevopsIteration, BackLogItem, DevopsWorkItem } from '../services/shared/azure-devops/azure-devops.models';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import _ from 'lodash';
 import TaskCard from '../components/task-card.component';
@@ -39,11 +39,34 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
         setOpenTaskDetail(true);
     };
 
+    const handleCreateTasks = async (newTasks: DevopsWorkItem[]) => {
+        if (!config || !selectedTask) return;
+        const createNewTaskPromises = _.map(newTasks, (t) =>
+            AzureDevopsClient.createTask(
+                config.selectedProjectId!,
+                selectedTask.fields['System.IterationPath']!,
+                selectedTask.url,
+                t.fields['System.Title']!
+            )
+        );
+        const result = await Promise.all(createNewTaskPromises);
+        _.each(productBackLogItems, (pbi) => {
+            if (pbi.id === selectedTask.id) {
+                pbi.taskIds = [...pbi.taskIds!, ..._.map(result, (r) => r.id)];
+            }
+        });
+        setProductBackLogItems(productBackLogItems);
+    };
+
     useEffect(() => {
         if (config && hasConfigured && selectedIterationId) {
             AzureDevopsClient.getIterationWorkItems(config.selectedProjectId!, config.selectedTeamId!, selectedIterationId).then(
                 (iItems) => {
                     const pbiIds = _.filter(iItems.workItemRelations, (w) => !w.rel && !w.source);
+                    if (!pbiIds?.length) {
+                        setProductBackLogItems([]);
+                        return;
+                    }
                     AzureDevopsClient.getWorkItems(
                         config.selectedProjectId!,
                         _.map(pbiIds, (p) => p.target!.id)
@@ -76,6 +99,7 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
                     renderInput={(params) => (
                         <TextField
                             {...params}
+                            size="medium"
                             variant="outlined"
                             label="Select Iteration"
                             helperText={productBackLogItems.length ? `${productBackLogItems.length} items` : ''}
@@ -94,6 +118,7 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
                     open={openTaskDetail}
                     handleClose={() => setOpenTaskDetail(false)}
                     projectId={config.selectedProjectId}
+                    onSubmit={async (nt) => await handleCreateTasks(nt)}
                 />
             )}
         </Grid>
