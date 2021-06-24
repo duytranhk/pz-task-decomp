@@ -18,6 +18,7 @@ import { useEffect } from 'react';
 import { AzureDevopsConfig } from '../contexts/azure-devops/azure-devops.model';
 import { useAzureDevopsContext, azureDevopsActions } from '../contexts/azure-devops/azure-devops.context';
 import { ActionTypes } from '../contexts/azure-devops/azure-devops.reducer';
+import { loaderActions, useLoaderContext } from '../contexts/loader/loader.context';
 
 const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement => {
     const {
@@ -29,26 +30,33 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
         state: { config, hasConfigured, teams, projects },
         dispatch,
     } = useAzureDevopsContext();
+    const loaderContext = useLoaderContext();
     const [hasError, setHasError] = useState(false);
 
     useEffect(() => {
         if (hasConfigured && (!projects.length || !teams.length)) {
-            Promise.all([azureDevopsActions.loadProjects()(dispatch), azureDevopsActions.loadTeams()(dispatch)]).then();
+            loaderActions.showLoader(loaderContext.dispatch);
+            Promise.all([azureDevopsActions.loadProjects()(dispatch), azureDevopsActions.loadTeams()(dispatch)]).then((_) =>
+                loaderActions.hideLoader(loaderContext.dispatch)
+            );
         }
     }, []);
 
     const onSubmit: SubmitHandler<AzureDevopsConfig> = (data: AzureDevopsConfig) => {
         azureDevopsActions.setConfig(data)(dispatch);
+        loaderActions.showLoader(loaderContext.dispatch);
         Promise.all([azureDevopsActions.loadProjects()(dispatch), azureDevopsActions.loadTeams()(dispatch)])
             .then(([p, t]) => {
                 setHasError(false);
                 if (p.find((pr) => pr.id === data.selectedProjectId && t.find((te) => te.id === data.selectedTeamId))) {
                     dispatch({ type: ActionTypes.VALIDATE_CONFIG, payload: true });
+                    loaderActions.hideLoader(loaderContext.dispatch);
                     props.handleClose();
                 }
             })
             .catch(() => {
                 setHasError(true);
+                loaderActions.hideLoader(loaderContext.dispatch);
                 dispatch({ type: ActionTypes.SET_PROJECT, payload: [] });
                 dispatch({ type: ActionTypes.SET_TEAM, payload: [] });
                 dispatch({ type: ActionTypes.VALIDATE_CONFIG, payload: false });

@@ -15,6 +15,7 @@ import {
     IconButton,
 } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
+import TaskIcon from '@material-ui/icons/Assignment';
 import { useEffect } from 'react';
 import { BackLogItem, DevopsWorkItem } from '../services/shared/azure-devops/azure-devops.models';
 import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.client';
@@ -22,6 +23,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
 import { GenerateTaskType } from '../contexts/azure-devops/azure-devops.model';
 import { DefaultTasks } from '../utils/constants';
+import { loaderActions, useLoaderContext } from '../contexts/loader/loader.context';
 const useStyles = makeStyles({
     dialogContent: {},
     taskContainer: {
@@ -38,13 +40,18 @@ const useStyles = makeStyles({
     header: {
         display: 'flex',
     },
+    noTaskContainer: {
+        textAlign: 'center',
+    },
 });
 const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, handleClose, onSubmit }): ReactElement => {
     const classes = useStyles();
+    const loaderContext = useLoaderContext();
     const [tasks, setTasks] = useState<DevopsWorkItem[]>([]);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     useEffect(() => {
-        if (task?.taskIds) {
+        if (task?.taskIds?.length > 0) {
+            loaderActions.showLoader(loaderContext.dispatch);
             AzureDevopsClient.getWorkItems(projectId, task.taskIds).then((res) => {
                 setTasks(
                     _.orderBy(res.value, (v) => {
@@ -54,6 +61,7 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, 
                         return 3;
                     })
                 );
+                loaderActions.hideLoader(loaderContext.dispatch);
             });
         }
     }, [task, projectId]);
@@ -178,6 +186,14 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, 
                             </Card>
                         </Grid>
                     ))}
+                    {!tasks.length && (
+                        <Grid item xs={12} className={classes.noTaskContainer}>
+                            <TaskIcon color="secondary" fontSize="large" />
+                            <Typography variant="body1" color="secondary">
+                                No tasks to show
+                            </Typography>
+                        </Grid>
+                    )}
                 </Grid>
             </DialogContent>
             <DialogActions>

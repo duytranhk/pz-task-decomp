@@ -9,6 +9,7 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import _ from 'lodash';
 import TaskCard from '../components/task-card.component';
 import StoryDetailDialog from '../components/story-detail-dialog.component';
+import { useLoaderContext, loaderActions } from '../contexts/loader/loader.context';
 
 const useStyles = makeStyles({
     root: {
@@ -20,6 +21,7 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
     const {
         state: { config, hasConfigured },
     } = useAzureDevopsContext();
+    const loaderContext = useLoaderContext();
     const [iterations, setIterations] = useState<DevopsIteration[]>([]);
     const [productBackLogItems, setProductBackLogItems] = useState<BackLogItem[]>([]);
     const [selectedIterationId, setSelectedIterationId] = useState<string>('');
@@ -28,8 +30,10 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
 
     useEffect(() => {
         if (hasConfigured && config) {
+            loaderActions.showLoader(loaderContext.dispatch);
             AzureDevopsClient.getIterations(config.selectedProjectId!, config.selectedTeamId!).then((res) => {
                 setIterations(res.value);
+                loaderActions.hideLoader(loaderContext.dispatch);
             });
         }
     }, [config, hasConfigured]);
@@ -49,7 +53,9 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
                 t.fields['System.Title']!
             )
         );
+        loaderActions.showLoader(loaderContext.dispatch);
         const result = await Promise.all(createNewTaskPromises);
+        loaderActions.hideLoader(loaderContext.dispatch);
         _.each(productBackLogItems, (pbi) => {
             if (pbi.id === selectedTask.id) {
                 pbi.taskIds = [...pbi.taskIds!, ..._.map(result, (r) => r.id)];
@@ -60,11 +66,13 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
 
     useEffect(() => {
         if (config && hasConfigured && selectedIterationId) {
+            loaderActions.showLoader(loaderContext.dispatch);
             AzureDevopsClient.getIterationWorkItems(config.selectedProjectId!, config.selectedTeamId!, selectedIterationId).then(
                 (iItems) => {
                     const pbiIds = _.filter(iItems.workItemRelations, (w) => !w.rel && !w.source);
                     if (!pbiIds?.length) {
                         setProductBackLogItems([]);
+                        loaderActions.hideLoader(loaderContext.dispatch);
                         return;
                     }
                     AzureDevopsClient.getWorkItems(
@@ -76,6 +84,7 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
                             taskIds: _.filter(iItems.workItemRelations, (i) => i.source?.id === b.id).map((i) => i.target?.id!),
                         }));
                         setProductBackLogItems(bli);
+                        loaderActions.hideLoader(loaderContext.dispatch);
                     });
                 }
             );
