@@ -7,7 +7,7 @@ import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.clie
 import { makeStyles } from '@material-ui/core/styles';
 import _ from 'lodash';
 import { GenerateTaskType } from '../contexts/azure-devops/azure-devops.model';
-import { DefaultTasks } from '../utils/constants';
+import { DEFAULT_TASKS } from '../utils/constants';
 import { loaderActions, useLoaderContext } from '../contexts/loader/loader.context';
 import TaskCard from './task-card.component';
 const useStyles = makeStyles({
@@ -61,28 +61,14 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ story, projectId, open,
     };
 
     const onGenerateTaskClick = (type: GenerateTaskType) => {
-        switch (type) {
-            case GenerateTaskType.API:
-            case GenerateTaskType.UI:
-            case GenerateTaskType.Common:
-                const newTasks = _.map(
-                    _.filter(DefaultTasks[type], (n) => !_.some(tasks, (t) => t.fields['System.Title'] === n)),
-                    (name, index) => createNewTask(name, index)
-                );
-                setTasks([...tasks, ...newTasks]);
-                break;
-            case GenerateTaskType.Single:
-                const newTask = createNewTask('New Task');
-                tasks.push(newTask);
-                setTasks(tasks);
-                break;
-        }
+        const newTasks = _.map(DEFAULT_TASKS[type], (name, index) => createNewTask(name, index));
+        setTasks([...tasks, ...newTasks]);
         handleCloseMenu();
     };
 
     const createNewTask = (title: string, index: number = 0): DevopsWorkItem => {
         return {
-            id: (new Date().getTime() + index) * -1,
+            id: +`${new Date().getTime()}${index}` * -1,
             rev: 0,
             url: '',
             fields: {

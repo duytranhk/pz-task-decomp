@@ -3,6 +3,7 @@ import { FC, ReactElement } from 'react';
 import { DevopsWorkItem } from '../services/shared/azure-devops/azure-devops.models';
 import { makeStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/Delete';
+import { APP_COLORS } from '../utils/constants';
 
 interface TaskCardProps {
     task: DevopsWorkItem;
@@ -22,11 +23,11 @@ const TaskCard: FC<TaskCardProps> = ({ task, onDelete }): ReactElement => {
         if (!state) return '';
         switch (state.toLowerCase()) {
             case 'to do':
-                return '#FF5722';
+                return APP_COLORS.todo;
             case 'in progress':
-                return '#1976D2';
+                return APP_COLORS.inprogress;
             case 'done':
-                return '#388E3C';
+                return APP_COLORS.done;
         }
         return '';
     };

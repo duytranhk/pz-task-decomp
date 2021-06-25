@@ -15,5 +15,6 @@ export enum GenerateTaskType {
     API,
     UI,
     Common,
+    Bug,
     Single,
 }
