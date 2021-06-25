@@ -18,3 +18,9 @@ export enum GenerateTaskType {
     Bug,
     Single,
 }
+
+export class WorkItemTypes {
+    public static PBI = 'Product Backlog Item';
+    public static BUG = 'Bug';
+    public static TASK = 'Task';
+}

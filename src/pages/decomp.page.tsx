@@ -10,6 +10,7 @@ import _ from 'lodash';
 import StoryCard from '../components/story-card.component';
 import StoryDetailDialog from '../components/story-detail-dialog.component';
 import { useLoaderContext, loaderActions } from '../contexts/loader/loader.context';
+import { WorkItemTypes } from '../contexts/azure-devops/azure-devops.model';
 
 const useStyles = makeStyles({
     root: {
@@ -37,25 +38,27 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
 
     const loadData = async (projectId: string, iterationId: string) => {
         loaderActions.showLoader(loaderContext.dispatch);
-        AzureDevopsClient.getIterationWorkItems(projectId, iterationId).then((iItems) => {
-            const pbiIds = _.filter(iItems.workItemRelations, (w) => !w.rel && !w.source);
-            if (!pbiIds?.length) {
-                setProductBackLogItems([]);
-                loaderActions.hideLoader(loaderContext.dispatch);
-                return;
-            }
-            AzureDevopsClient.getWorkItems(
-                projectId,
-                _.map(pbiIds, (p) => p.target!.id)
-            ).then((res) => {
-                const bli = _.map(res.value, (b) => ({
-                    ...b,
-                    taskIds: _.filter(iItems.workItemRelations, (i) => i.source?.id === b.id).map((i) => i.target?.id!),
-                }));
-                setProductBackLogItems(bli);
-                loaderActions.hideLoader(loaderContext.dispatch);
-            });
-        });
+        const iterationItems = await AzureDevopsClient.getIterationWorkItems(projectId, iterationId);
+        const pbiIds = _.map(
+            _.filter(iterationItems.workItemRelations, (w) => !w.rel && !!w.target),
+            (p) => p.target!.id
+        );
+        if (!pbiIds?.length) {
+            setProductBackLogItems([]);
+            loaderActions.hideLoader(loaderContext.dispatch);
+            return;
+        }
+        const pbiResponse = await AzureDevopsClient.getWorkItems(projectId, pbiIds);
+        setProductBackLogItems(
+            _.map(
+                _.filter(pbiResponse.value, (p) => [WorkItemTypes.PBI, WorkItemTypes.BUG].includes(p.fields['System.WorkItemType']!)),
+                (bl) => ({
+                    ...bl,
+                    taskIds: _.filter(iterationItems.workItemRelations, (i) => i.source?.id === bl.id).map((i) => i.target?.id!),
+                })
+            )
+        );
+        loaderActions.hideLoader(loaderContext.dispatch);
     };
 
     const handleTaskClick = (task: BackLogItem) => {
@@ -63,19 +66,23 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
         setOpenTaskDetail(true);
     };
 
-    const handleCreateTasks = async (newTasks: DevopsWorkItem[]) => {
+    const handleSubmit = async (newTasks: DevopsWorkItem[], updatedTasks: DevopsWorkItem[], deletedTasks: DevopsWorkItem[]) => {
         if (!config || !selectedTask) return;
-        const createNewTaskPromises = _.map(newTasks, (t) =>
-            AzureDevopsClient.createTask(
-                config.selectedProjectId!,
-                selectedTask.fields['System.IterationPath']!,
-                selectedTask.url,
-                t.fields['System.Title']!
-            )
-        );
         loaderActions.showLoader(loaderContext.dispatch);
-        await Promise.all(createNewTaskPromises);
-        await loadData(config.selectedProjectId!, selectedIterationId);
+        if (newTasks.length) {
+            const createNewTaskPromises = _.map(newTasks, (t) =>
+                AzureDevopsClient.createTask(
+                    config.selectedProjectId!,
+                    selectedTask.fields['System.IterationPath']!,
+                    selectedTask.url,
+                    t.fields['System.Title']!
+                )
+            );
+            await Promise.all(createNewTaskPromises);
+            await loadData(config.selectedProjectId!, selectedIterationId);
+        }
+
+        console.log(deletedTasks);
         loaderActions.hideLoader(loaderContext.dispatch);
     };
 
@@ -114,7 +121,7 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
                     open={openTaskDetail}
                     handleClose={() => setOpenTaskDetail(false)}
                     projectId={config.selectedProjectId}
-                    onSubmit={async (nt) => await handleCreateTasks(nt)}
+                    onSubmit={async (n, u, r) => await handleSubmit(n, u, r)}
                 />
             )}
         </Grid>

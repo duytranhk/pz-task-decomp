@@ -46,17 +46,17 @@ export interface DevopsWorkItemFields {
     'System.AreaPath'?: string;
     'System.TeamProject'?: string;
     'System.IterationPath'?: string;
-    'System.WorkItemType'?: string;
     'System.State'?: string;
     'System.Reason'?: string;
     'System.ChangedDate'?: Date;
     'System.CreatedDate'?: Date;
     'Microsoft.VSTS.Scheduling.Effort'?: number;
-    'System.Title'?: string;
-    'System.Description'?: string;
     'Microsoft.VSTS.Common.BacklogPriority'?: number;
     'Microsoft.VSTS.Common.Priority'?: number;
-    'Microsoft.VSTS.Scheduling.RemainingWork'?: number;
+    'System.WorkItemType': string;
+    'System.Title': string;
+    'System.Description': string;
+    'Microsoft.VSTS.Scheduling.RemainingWork': number;
 }
 
 export interface BackLogItem extends DevopsWorkItem {

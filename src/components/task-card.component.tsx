@@ -16,6 +16,12 @@ const useStyles = makeStyles((theme) => ({
         color: '#fff',
         letterSpacing: 1,
     },
+    taskNameContainer: {
+        '& > input': {
+            padding: '5px 10px',
+            width: '94%',
+        },
+    },
     taskName: {
         color: theme.palette.secondary.main,
         width: '99%',
@@ -23,6 +29,8 @@ const useStyles = makeStyles((theme) => ({
         padding: '5px 0',
         outline: 'none',
         border: 'none',
+        display: 'flex',
+        alignItems: 'center',
         minHeight: 30,
         fontSize: '1rem',
         '&:hover, &:focus': {
@@ -55,7 +63,7 @@ const TaskCard: FC<TaskCardProps> = ({ task, onDelete }): ReactElement => {
             <CardHeader
                 title={
                     <>
-                        <Typography variant="body1" color="secondary">
+                        <Typography variant="body1" color="secondary" className={classes.taskNameContainer}>
                             <EditText
                                 name="task-title"
                                 className={classes.taskName}
@@ -79,11 +87,9 @@ const TaskCard: FC<TaskCardProps> = ({ task, onDelete }): ReactElement => {
                     </>
                 }
                 action={
-                    task.id < 0 && (
-                        <IconButton aria-label="delete" onClick={() => onDelete(task.id)}>
-                            <DeleteIcon />
-                        </IconButton>
-                    )
+                    <IconButton aria-label="delete" onClick={() => onDelete(task.id)}>
+                        <DeleteIcon />
+                    </IconButton>
                 }
             />
         </Card>

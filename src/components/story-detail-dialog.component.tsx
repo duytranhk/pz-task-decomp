@@ -35,6 +35,7 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ story, projectId, open,
     const classes = useStyles();
     const loaderContext = useLoaderContext();
     const [tasks, setTasks] = useState<DevopsWorkItem[]>([]);
+    const [removedTasks, setRemovedTasks] = useState<DevopsWorkItem[]>([]);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     useEffect(() => {
         if (story?.taskIds?.length > 0) {
@@ -71,12 +72,21 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ story, projectId, open,
 
     const handleSave = () => {
         const newTasks = _.filter(tasks, (t) => t.id < 0);
-        onSubmit(newTasks);
+        onSubmit(
+            newTasks,
+            [],
+            _.filter(removedTasks, (t) => t.id > 0)
+        );
         handleClose();
     };
 
     const handleDeleteTask = (taskId: number) => {
-        setTasks(_.filter(tasks, (t) => t.id !== taskId));
+        const removedTask = _.find(tasks, (t) => t.id === taskId);
+        if (removedTask) {
+            removedTasks.push(removedTask);
+            setRemovedTasks(removedTasks);
+            setTasks(_.filter(tasks, (t) => t.id !== removedTask.id));
+        }
     };
 
     return (
@@ -98,6 +108,7 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ story, projectId, open,
                         <MenuItem onClick={() => onGenerateTaskClick(GenerateTaskType.Common)}>Common tasks</MenuItem>
                         <MenuItem onClick={() => onGenerateTaskClick(GenerateTaskType.API)}>API tasks</MenuItem>
                         <MenuItem onClick={() => onGenerateTaskClick(GenerateTaskType.UI)}>UI tasks</MenuItem>
+                        <MenuItem onClick={() => onGenerateTaskClick(GenerateTaskType.Bug)}>Bug tasks</MenuItem>
                         <MenuItem onClick={() => onGenerateTaskClick(GenerateTaskType.Single)}>Single task</MenuItem>
                     </Menu>
                 </div>
@@ -133,7 +144,7 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ story, projectId, open,
 export interface StoryDetailDialogProps {
     open: boolean;
     handleClose: () => void;
-    onSubmit: (newTasks: DevopsWorkItem[]) => void;
+    onSubmit: (newTasks: DevopsWorkItem[], updatedTasks: DevopsWorkItem[], deletedTasks: DevopsWorkItem[]) => void;
     story: BackLogItem;
     projectId: string;
 }
