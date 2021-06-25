@@ -3,6 +3,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import React, { Dispatch, FC, ReactElement, useContext, useReducer } from 'react';
 import { LoaderAction } from './loader.action';
 import { LoaderActions, loaderReducer, LoaderState } from './loader.reducer';
+import { Animated } from 'react-animated-css';
 
 const initialState: LoaderState = {
     isLoading: false,
@@ -34,11 +35,16 @@ const LoaderProvider: FC<any> = (props): ReactElement => {
     const classes = useStyles();
     return (
         <LoaderContext.Provider value={{ state, dispatch }}>
-            {state.isLoading && (
-                <div className={classes.root}>
-                    <CircularProgress size={68} />
-                </div>
-            )}
+            <Animated
+                animationIn="fadeIn"
+                animationOut="fadeOut"
+                animationInDuration={500}
+                animationOutDuration={500}
+                isVisible={state.isLoading}
+                className={classes.root}
+            >
+                <CircularProgress size={68} />
+            </Animated>
             {props.children}
         </LoaderContext.Provider>
     );

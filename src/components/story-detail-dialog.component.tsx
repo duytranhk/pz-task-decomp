@@ -1,20 +1,5 @@
 import React, { FC, ReactElement, useState } from 'react';
-import {
-    DialogContent,
-    DialogActions,
-    Button,
-    DialogTitle,
-    Dialog,
-    Grid,
-    Card,
-    Typography,
-    Chip,
-    CardHeader,
-    MenuItem,
-    Menu,
-    IconButton,
-} from '@material-ui/core';
-import DeleteIcon from '@material-ui/icons/Delete';
+import { DialogContent, DialogActions, Button, DialogTitle, Dialog, Grid, Typography, MenuItem, Menu } from '@material-ui/core';
 import TaskIcon from '@material-ui/icons/Assignment';
 import { useEffect } from 'react';
 import { BackLogItem, DevopsWorkItem } from '../services/shared/azure-devops/azure-devops.models';
@@ -24,6 +9,7 @@ import _ from 'lodash';
 import { GenerateTaskType } from '../contexts/azure-devops/azure-devops.model';
 import { DefaultTasks } from '../utils/constants';
 import { loaderActions, useLoaderContext } from '../contexts/loader/loader.context';
+import TaskCard from './task-card.component';
 const useStyles = makeStyles({
     dialogContent: {},
     taskContainer: {
@@ -44,15 +30,15 @@ const useStyles = makeStyles({
         textAlign: 'center',
     },
 });
-const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, handleClose, onSubmit }): ReactElement => {
+const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ story, projectId, open, handleClose, onSubmit }): ReactElement => {
     const classes = useStyles();
     const loaderContext = useLoaderContext();
     const [tasks, setTasks] = useState<DevopsWorkItem[]>([]);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     useEffect(() => {
-        if (task?.taskIds?.length > 0) {
+        if (story?.taskIds?.length > 0) {
             loaderActions.showLoader(loaderContext.dispatch);
-            AzureDevopsClient.getWorkItems(projectId, task.taskIds).then((res) => {
+            AzureDevopsClient.getWorkItems(projectId, story.taskIds).then((res) => {
                 setTasks(
                     _.orderBy(res.value, (v) => {
                         if (v.fields['System.State']?.toLocaleLowerCase() === 'to do') return 0;
@@ -64,20 +50,7 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, 
                 loaderActions.hideLoader(loaderContext.dispatch);
             });
         }
-    }, [task, projectId]);
-
-    const getStateColor = (state?: string): string => {
-        if (!state) return '';
-        switch (state.toLowerCase()) {
-            case 'to do':
-                return '#FF5722';
-            case 'in progress':
-                return '#1976D2';
-            case 'done':
-                return '#388E3C';
-        }
-        return '';
-    };
+    }, [story, projectId]);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -99,7 +72,7 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, 
                 setTasks([...tasks, ...newTasks]);
                 break;
             case GenerateTaskType.Single:
-                const newTask = createNewTask('Single Task');
+                const newTask = createNewTask('New Task');
                 tasks.push(newTask);
                 setTasks(tasks);
                 break;
@@ -125,15 +98,15 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, 
         handleClose();
     };
 
-    const handleDeleteTask = (task: DevopsWorkItem) => {
-        setTasks(_.filter(tasks, (t) => t.id !== task.id));
+    const handleDeleteTask = (taskId: number) => {
+        setTasks(_.filter(tasks, (t) => t.id !== taskId));
     };
 
     return (
         <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md" disableBackdropClick>
             <DialogTitle>
                 <div className={classes.header}>
-                    {task.fields['System.Title']}
+                    {story.fields['System.Title']}
                     <Button
                         className={classes.generateBtn}
                         variant="outlined"
@@ -156,34 +129,7 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ task, projectId, open, 
                 <Grid container className={classes.taskContainer} spacing={2}>
                     {_.map(tasks, (t) => (
                         <Grid item xs={6} key={t.id}>
-                            <Card key={t.id}>
-                                <CardHeader
-                                    title={
-                                        <>
-                                            <Typography variant="body1" color="secondary">
-                                                {t.fields['System.Title']}
-                                            </Typography>
-                                            <Typography variant="caption">
-                                                Remaining work: {t.fields['Microsoft.VSTS.Scheduling.RemainingWork'] || 0}
-                                            </Typography>
-                                            <br />
-                                            <Chip
-                                                className={classes.taskState}
-                                                size="small"
-                                                label={t.fields['System.State']}
-                                                style={{ backgroundColor: getStateColor(t.fields['System.State']) }}
-                                            />
-                                        </>
-                                    }
-                                    action={
-                                        t.id < 0 && (
-                                            <IconButton aria-label="delete" onClick={() => handleDeleteTask(t)}>
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        )
-                                    }
-                                />
-                            </Card>
+                            <TaskCard task={t} onDelete={(taskId) => handleDeleteTask(taskId)} />
                         </Grid>
                     ))}
                     {!tasks.length && (
@@ -211,7 +157,7 @@ export interface StoryDetailDialogProps {
     open: boolean;
     handleClose: () => void;
     onSubmit: (newTasks: DevopsWorkItem[]) => void;
-    task: BackLogItem;
+    story: BackLogItem;
     projectId: string;
 }
 

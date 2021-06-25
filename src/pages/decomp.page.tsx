@@ -7,7 +7,7 @@ import AzureDevopsClient from '../services/shared/azure-devops/azure-devops.clie
 import { DevopsIteration, BackLogItem, DevopsWorkItem } from '../services/shared/azure-devops/azure-devops.models';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import _ from 'lodash';
-import TaskCard from '../components/task-card.component';
+import StoryCard from '../components/story-card.component';
 import StoryDetailDialog from '../components/story-detail-dialog.component';
 import { useLoaderContext, loaderActions } from '../contexts/loader/loader.context';
 
@@ -105,12 +105,12 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
             </Grid>
             {_.map(productBackLogItems, (pbi) => (
                 <Grid item xs={12} sm={6} lg={4} key={pbi.id}>
-                    <TaskCard task={pbi} onTaskClick={() => handleTaskClick(pbi)} />
+                    <StoryCard story={pbi} onClick={() => handleTaskClick(pbi)} />
                 </Grid>
             ))}
             {selectedTask && openTaskDetail && config?.selectedProjectId && (
                 <StoryDetailDialog
-                    task={selectedTask}
+                    story={selectedTask}
                     open={openTaskDetail}
                     handleClose={() => setOpenTaskDetail(false)}
                     projectId={config.selectedProjectId}

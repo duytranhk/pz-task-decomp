@@ -1,96 +1,66 @@
-import React, { ReactElement, FC } from 'react';
-import { Card, makeStyles, Typography, CardHeader, Avatar } from '@material-ui/core';
-import { BackLogItem } from '../services/shared/azure-devops/azure-devops.models';
-import ArrowIcon from '@material-ui/icons/ArrowForwardIos';
-const useStyles = makeStyles((theme) => ({
-    root: {
-        flexDirection: 'column',
-        display: 'flex',
-        transition: 'box-shadow 0.3s ease-in',
-        cursor: 'pointer',
-        '&:hover, &:focus': {
-            boxShadow: '0 0 20px 0 rgba(66, 188, 199, 0.45)',
-        },
-        '& .MuiCardHeader-action': {
-            alignSelf: 'center',
-            color: '#d2dfec',
-        },
-    },
-    cardButtonRow: {
-        marginTop: 'auto',
-        display: 'flex',
-        justifyContent: 'flex-end',
-    },
-    selected: {
-        boxShadow: '0 3px 11px 0 rgb(0 152 167)',
-    },
-    avatar: {
-        backgroundColor: '#009688',
-        color: '#414141',
-        fontWeight: 550,
-        width: 50,
-        height: 50,
-        fontSize: 23,
-    },
-    title: {
-        textOverflow: 'ellipsis',
-        lineHeight: '1.5em',
-        height: '3em',
-        overflow: 'hidden',
-    },
-    taskDetail: {
-        display: 'grid',
-    },
-}));
+import { CardHeader, Card, Chip, IconButton, Typography } from '@material-ui/core';
+import { FC, ReactElement } from 'react';
+import { DevopsWorkItem } from '../services/shared/azure-devops/azure-devops.models';
+import { makeStyles } from '@material-ui/core/styles';
+import DeleteIcon from '@material-ui/icons/Delete';
 
-const TaskCard: FC<TaskCardProps> = ({ task, onTaskClick }): ReactElement => {
+interface TaskCardProps {
+    task: DevopsWorkItem;
+    onDelete: (id: number) => void;
+}
+
+const useStyles = makeStyles({
+    taskState: {
+        color: '#fff',
+        letterSpacing: 1,
+    },
+});
+
+const TaskCard: FC<TaskCardProps> = ({ task, onDelete }): ReactElement => {
     const classes = useStyles();
-    const getBackground = (point: number): string => {
-        if (point <= 3) return 'linear-gradient(145deg, #8bc34a 0%, #D6F7B6 100%)';
-        if (point <= 5) return 'linear-gradient(145deg, #CDDC39 0%, #F8FFA6 100%)';
-        if (point <= 8) return 'linear-gradient(145deg, #FFEB3B 0%, #FFF29A 100%)';
-        if (point <= 13) return 'linear-gradient(145deg, #FF9800 0%, #EACE9A 100%)';
-        if (point <= 20) return 'linear-gradient(145deg, #FF5722 0%, #F5B29F 100%)';
-        if (point > 20) return 'linear-gradient(145deg, #D32F2F 0%, #EE9E9E 100%)';
-        return 'linear-gradient(145deg, #A6A6A6 0%, #EAEAEA 100%)';
+    const getStateColor = (state?: string): string => {
+        if (!state) return '';
+        switch (state.toLowerCase()) {
+            case 'to do':
+                return '#FF5722';
+            case 'in progress':
+                return '#1976D2';
+            case 'done':
+                return '#388E3C';
+        }
+        return '';
     };
+
     return (
-        <Card className={classes.root} onClick={onTaskClick}>
+        <Card>
             <CardHeader
-                avatar={
-                    <Avatar
-                        className={classes.avatar}
-                        aria-label="recipe"
-                        style={{ background: getBackground(task.fields['Microsoft.VSTS.Scheduling.Effort']!) }}
-                    >
-                        {task.fields['Microsoft.VSTS.Scheduling.Effort'] || '...'}
-                    </Avatar>
-                }
                 title={
-                    <div className={classes.taskDetail}>
-                        <Typography className={classes.title} variant="subtitle1" color="primary">
+                    <>
+                        <Typography variant="body1" color="secondary">
                             {task.fields['System.Title']}
                         </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                            <strong>Created on:</strong> {new Date(task.fields['System.CreatedDate']!).toLocaleString()}
+                        <Typography variant="caption">
+                            Remaining work: {task.fields['Microsoft.VSTS.Scheduling.RemainingWork'] || 0}
                         </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                            <strong>Updated on:</strong> {new Date(task.fields['System.ChangedDate']!).toLocaleString()}
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                            <strong>Subtasks:</strong> {task.taskIds.length}
-                        </Typography>
-                    </div>
+                        <br />
+                        <Chip
+                            className={classes.taskState}
+                            size="small"
+                            label={task.fields['System.State']}
+                            style={{ backgroundColor: getStateColor(task.fields['System.State']) }}
+                        />
+                    </>
                 }
-                action={<ArrowIcon />}
+                action={
+                    task.id < 0 && (
+                        <IconButton aria-label="delete" onClick={() => onDelete(task.id)}>
+                            <DeleteIcon />
+                        </IconButton>
+                    )
+                }
             />
         </Card>
     );
 };
-
-interface TaskCardProps {
-    task: BackLogItem;
-    onTaskClick: () => void;
-}
 
 export default TaskCard;

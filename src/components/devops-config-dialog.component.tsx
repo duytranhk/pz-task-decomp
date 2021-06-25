@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, useEffect, useState } from 'react';
+import React, { FC, ReactElement, useState } from 'react';
 import {
     DialogContent,
     DialogActions,
@@ -17,7 +17,6 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { AzureDevopsConfig } from '../contexts/azure-devops/azure-devops.model';
 import { useAzureDevopsContext, azureDevopsActions } from '../contexts/azure-devops/azure-devops.context';
 import { loaderActions, useLoaderContext } from '../contexts/loader/loader.context';
-import { ActionTypes } from '../contexts/azure-devops/azure-devops.reducer';
 
 const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement => {
     const {
