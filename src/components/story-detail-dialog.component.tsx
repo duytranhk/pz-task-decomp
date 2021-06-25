@@ -10,6 +10,7 @@ import { GenerateTaskType } from '../contexts/azure-devops/azure-devops.model';
 import { DEFAULT_TASKS } from '../utils/constants';
 import { loaderActions, useLoaderContext } from '../contexts/loader/loader.context';
 import TaskCard from './task-card.component';
+import { azureDevopsActions } from '../contexts/azure-devops/azure-devops.context';
 const useStyles = makeStyles({
     dialogContent: {},
     taskContainer: {
@@ -61,21 +62,11 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ story, projectId, open,
     };
 
     const onGenerateTaskClick = (type: GenerateTaskType) => {
-        const newTasks = _.map(DEFAULT_TASKS[type], (name, index) => createNewTask(name, index));
+        const newTasks = _.map(DEFAULT_TASKS[type], (name, index) =>
+            azureDevopsActions.createNewTasks(name, +`-${new Date().getTime()}${index}`)
+        );
         setTasks([...tasks, ...newTasks]);
         handleCloseMenu();
-    };
-
-    const createNewTask = (title: string, index: number = 0): DevopsWorkItem => {
-        return {
-            id: +`${new Date().getTime()}${index}` * -1,
-            rev: 0,
-            url: '',
-            fields: {
-                'System.Title': title,
-                'System.State': 'To Do',
-            },
-        };
     };
 
     const handleSave = () => {

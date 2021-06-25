@@ -5,7 +5,7 @@ import { azureDevopsActions, useAzureDevopsContext } from '../contexts/azure-dev
 import SuccessIcon from '@material-ui/icons/CheckCircle';
 import WarningIcon from '@material-ui/icons/Warning';
 import clsx from 'clsx';
-import { appColor } from '../utils/constants';
+import { APP_COLORS } from '../utils/constants';
 
 const useStyles = makeStyles({
     root: {
@@ -17,16 +17,16 @@ const useStyles = makeStyles({
         fontWeight: 550,
     },
     caption: {
-        color: appColor.subtitle,
+        color: APP_COLORS.subtitle,
     },
     icon: {
         fontSize: '5rem',
     },
     success: {
-        color: appColor.success,
+        color: APP_COLORS.success,
     },
     warn: {
-        color: appColor.warning,
+        color: APP_COLORS.warning,
     },
 });
 const HomePage: FC<any> = (): ReactElement => {

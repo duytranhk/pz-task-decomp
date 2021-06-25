@@ -38,8 +38,8 @@ const LoaderProvider: FC<any> = (props): ReactElement => {
             <Animated
                 animationIn="fadeIn"
                 animationOut="fadeOut"
-                animationInDuration={500}
-                animationOutDuration={500}
+                animationInDuration={300}
+                animationOutDuration={200}
                 isVisible={state.isLoading}
                 className={classes.root}
             >

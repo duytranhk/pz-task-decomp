@@ -1,3 +1,4 @@
+import { DevopsWorkItem } from './../../services/shared/azure-devops/azure-devops.models';
 import { Dispatch } from 'react';
 import AzureDevopsClient from '../../services/shared/azure-devops/azure-devops.client';
 import UtilService from '../../services/util.service';
@@ -47,5 +48,17 @@ export class AzureDevopsAction {
             dispatch({ type: ActionTypes.SET_CONFIG, payload: { selectedProjectId: '' } });
         }
         return false;
+    };
+
+    createNewTasks = (title: string, id: number = 0) => {
+        return {
+            id,
+            rev: 0,
+            url: '',
+            fields: {
+                'System.Title': title,
+                'System.State': 'To Do',
+            },
+        } as DevopsWorkItem;
     };
 }

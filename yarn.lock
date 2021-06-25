@@ -1917,6 +1917,13 @@
   dependencies:
     "@types/react" "*"
 
+"@types/react-edit-text@^4.0.0":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@types/react-edit-text/-/react-edit-text-4.0.0.tgz#b3ff73802a52ed04ab140a619bbc4d7d5b8c9f58"
+  integrity sha512-Gmpx9IQYa60szXtt8tcpNQ7UJsfUkhm4ItTP4ovg+wRqFmOA8bfVyMQMFTPOACy0a4qnMoolJ7/fFh5+VNmfrw==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-router-dom@^5.1.7":
   version "5.1.7"
   resolved "https://registry.yarnpkg.com/@types/react-router-dom/-/react-router-dom-5.1.7.tgz#a126d9ea76079ffbbdb0d9225073eb5797ab7271"
@@ -3409,7 +3416,7 @@ class-utils@^0.3.5:
     isobject "^3.0.0"
     static-extend "^0.1.1"
 
-classnames@^2.2.5:
+classnames@^2.2.5, classnames@^2.2.6:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.3.1.tgz#dfcfa3891e306ec1dad105d0e88f4417b8535e8e"
   integrity sha512-OlQdbZ7gLfGarSqxesMesDa5uz7KFbID8Kpq/SxIoNGDqY8lSYs0D+hhtBXhcdB3rcbXArFr7vlHheLk1voeNA==
@@ -9396,6 +9403,13 @@ react-dom@^17.0.2:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
     scheduler "^0.20.2"
+
+react-edit-text@^4.0.3:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/react-edit-text/-/react-edit-text-4.0.3.tgz#87c25fe9b3141e0e04172435d1fed048b76781f3"
+  integrity sha512-z8DoPkeUhkPjdCuCIs2YH7xz2HDX9uZ5a3jaUH1Pt0Dt6cPH3HQi5yz/z6URwhBRdPeYcZj9qWqZj6TxzK6eJA==
+  dependencies:
+    classnames "^2.2.6"
 
 react-error-overlay@^6.0.9:
   version "6.0.9"
