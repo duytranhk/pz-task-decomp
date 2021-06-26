@@ -100,20 +100,19 @@ const StoryDetailDialog: FC<StoryDetailDialogProps> = ({ story, projectId, open,
 
     const handleSave = async () => {
         const newTasks = _.filter(tasks, (t) => t.id < 0);
-        await onSubmit(
-            newTasks,
-            editedTasks,
-            _.filter(removedTasks, (t) => t.id > 0)
-        );
+        await onSubmit(newTasks, editedTasks, removedTasks);
         handleClose();
     };
 
     const handleDeleteTask = (taskId: number) => {
         const removedTask = _.find(tasks, (t) => t.id === taskId);
         if (removedTask) {
-            removedTasks.push(removedTask);
-            setRemovedTasks(removedTasks);
+            if (removedTask.id > 0) {
+                removedTasks.push(removedTask);
+                setRemovedTasks(removedTasks);
+            }
             setTasks(_.filter(tasks, (t) => t.id !== removedTask.id));
+            setEditedTasks(_.filter(editedTasks, (t) => t.id !== removedTask.id));
         }
     };
 
