@@ -58,7 +58,12 @@ export class AzureDevopsAction {
             fields: {
                 'System.Title': title,
                 'System.State': 'To Do',
+                'Microsoft.VSTS.Scheduling.RemainingWork': 0,
             },
         } as DevopsWorkItem;
+    };
+
+    getWorkItemUrl = (config: AzureDevopsConfig, id: number) => {
+        return `${config.endpoint}/${config.selectedProjectId}/_workitems/edit//${id}`;
     };
 }

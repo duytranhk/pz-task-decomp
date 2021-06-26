@@ -125,7 +125,7 @@ const DevopsConfigDialog: FC<DevopsConfigDialogProps> = (props): ReactElement =>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={props.handleClose} color="default">
-                        Cancel
+                        Close
                     </Button>
                     <Button type="submit" variant="contained" color="primary" autoFocus>
                         {projects.length ? 'Save' : 'Verify'}

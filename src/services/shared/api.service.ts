@@ -14,6 +14,10 @@ export default class ApiService {
         return this.callApi<T, P>('PATCH', endpoint, apiVersion, data, query);
     }
 
+    public static delete(endpoint: string, apiVersion: string, query?: { [key: string]: any }): Promise<void> {
+        return this.callApi<any, void>('DELETE', endpoint, apiVersion, null, query);
+    }
+
     public static callApi<T, P>(
         method: Method,
         endpoint: string,
@@ -44,12 +48,7 @@ export default class ApiService {
         }
 
         return axios.request<T, AxiosResponse<P>>(option).then((response) => {
-            return new Promise<P>((resolve, reject) => {
-                if (response.status === 200) {
-                    return resolve(response.data);
-                }
-                return reject('Fail to call api');
-            });
+            return response.data;
         });
     }
 }

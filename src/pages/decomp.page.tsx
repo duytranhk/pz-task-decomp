@@ -69,20 +69,46 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
     const handleSubmit = async (newTasks: DevopsWorkItem[], updatedTasks: DevopsWorkItem[], deletedTasks: DevopsWorkItem[]) => {
         if (!config || !selectedTask) return;
         loaderActions.showLoader(loaderContext.dispatch);
+        let promises: Promise<any>[] = [];
         if (newTasks.length) {
             const createNewTaskPromises = _.map(newTasks, (t) =>
                 AzureDevopsClient.createTask(
                     config.selectedProjectId!,
                     selectedTask.fields['System.IterationPath']!,
                     selectedTask.url,
-                    t.fields['System.Title']!
+                    t.fields['System.Title'],
+                    t.fields['Microsoft.VSTS.Scheduling.RemainingWork']
                 )
             );
-            await Promise.all(createNewTaskPromises);
-            await loadData(config.selectedProjectId!, selectedIterationId);
+            promises = [...promises, ...createNewTaskPromises];
+        }
+        if (deletedTasks.length) {
+            const removeTaskPromises = _.map(deletedTasks, (t) => AzureDevopsClient.deleteWorkItem(t.id));
+            promises = [...promises, ...removeTaskPromises];
+        }
+        if (updatedTasks.length) {
+            const updatedTaskPromises = _.map(updatedTasks, (t) =>
+                AzureDevopsClient.updateWorkItem(config.selectedProjectId!, t.id, [
+                    {
+                        op: 'add',
+                        path: '/fields/System.Title',
+                        value: t.fields['System.Title'],
+                    },
+                    {
+                        op: 'add',
+                        path: '/fields/Microsoft.VSTS.Scheduling.RemainingWork',
+                        value: t.fields['Microsoft.VSTS.Scheduling.RemainingWork'],
+                    },
+                ])
+            );
+            promises = [...promises, ...updatedTaskPromises];
         }
 
-        console.log(deletedTasks);
+        if (promises.length) {
+            await Promise.all(promises);
+        }
+        await loadData(config.selectedProjectId!, selectedIterationId);
+
         loaderActions.hideLoader(loaderContext.dispatch);
     };
 
@@ -121,7 +147,7 @@ const TaskDecompPage: FC<any> = (): ReactElement => {
                     open={openTaskDetail}
                     handleClose={() => setOpenTaskDetail(false)}
                     projectId={config.selectedProjectId}
-                    onSubmit={async (n, u, r) => await handleSubmit(n, u, r)}
+                    onSubmit={handleSubmit}
                 />
             )}
         </Grid>

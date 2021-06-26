@@ -27,8 +27,8 @@ export default class AzureDevopsClient {
         return ApiService.get<AzureDevopsResponse<DevopsWorkItem[]>>(`${projectId}/_apis/wit/workitems`, '6.1-preview.3', { ids: wIds });
     }
 
-    public static createTask(projectId: string, iterationPath: string, parentUrl: string, title: string) {
-        return this.createWorkItem(projectId, '$Task', title, iterationPath).then((r) => {
+    public static createTask(projectId: string, iterationPath: string, parentUrl: string, title: string, remainingWork: number) {
+        return this.createWorkItem(projectId, '$Task', iterationPath, title, remainingWork).then((r) => {
             const data: WorkItemFields[] = [
                 {
                     op: 'add',
@@ -47,7 +47,7 @@ export default class AzureDevopsClient {
         });
     }
 
-    public static createWorkItem(projectId: string, type: string, title: string, iterationPath: string) {
+    public static createWorkItem(projectId: string, type: string, iterationPath: string, title: string, remainingWork: number = 0) {
         const data: WorkItemFields[] = [
             {
                 op: 'add',
@@ -59,12 +59,21 @@ export default class AzureDevopsClient {
                 path: '/fields/System.IterationPath',
                 value: iterationPath,
             },
+            {
+                op: 'add',
+                path: '/fields/Microsoft.VSTS.Scheduling.RemainingWork',
+                value: remainingWork,
+            },
         ];
         return ApiService.post<WorkItemFields[], DevopsWorkItem>(`${projectId}/_apis/wit/workitems/${type}`, data, '6.0');
     }
 
     public static updateWorkItem(projectId: string, id: number, fields: WorkItemFields[]) {
         return ApiService.patch<WorkItemFields[], DevopsWorkItem>(`${projectId}/_apis/wit/workitems/${id}`, fields, '6.0');
+    }
+
+    public static deleteWorkItem(id: number) {
+        return ApiService.delete(`_apis/wit/workitems/${id}`, '6.0');
     }
 }
 
